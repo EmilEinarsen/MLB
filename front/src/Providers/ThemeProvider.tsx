@@ -1,3 +1,4 @@
+import React from 'react'
 import { createMuiTheme, CssBaseline, ThemeProvider as MuiThemeProvider } from '@material-ui/core'
 
 declare module '@material-ui/core/styles/createMuiTheme' {
@@ -17,7 +18,9 @@ const theme = createMuiTheme({
 				html: {
 					height: '100vh',
 					overflow: 'hidden',
-				}
+				},
+				'*': { scrollbarWidth: 'thin', },
+				'::-webkit-scrollbar': {  width: '6px', height: '6px', },
 			}
 		}
 	}

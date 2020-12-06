@@ -1,14 +1,24 @@
-import Navbar, { navigation } from './Navbar'
-import { useState } from 'react'
+import React from 'react'
+import { navigation } from '../../../Providers/PageProvider'
+import Navbar from './Navbar'
 
-const initialState = navigation.favorite
+interface Props {
+	props: {
+		page: navigation,
+		setPage: () => void,
+		pages: Page[]
+	}
+}
 
-const NavbarContainer: React.FC = () => {
-	const [page, setPage] = useState(initialState);
+const NavbarContainer: React.FC<Props> = ({ 
+	props: { 
+		page, 
+		setPage, 
+		pages 
+	}
+}) => {
 
-	const handleChange = (e: object, value: navigation) => setPage(value)
-
-	return <Navbar props={{ handleChange }} value={page} />
+	return <Navbar props={{ pages, setPage }} value={page} />
 }
 
 export default NavbarContainer

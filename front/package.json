@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^4.3.0",
     "@material-ui/core": "^4.11.1",
     "@material-ui/icons": "^4.9.1",
     "@testing-library/jest-dom": "^5.11.6",
@@ -12,6 +13,8 @@
     "@types/node": "^12.19.8",
     "@types/react": "^16.14.2",
     "@types/react-dom": "^16.9.10",
+    "antd": "^4.9.1",
+    "bjork_react-hookup": "^2.0.52",
     "node-sass": "^4.14.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
