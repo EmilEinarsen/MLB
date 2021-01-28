@@ -1,15 +1,33 @@
 import React, { useContext, useState } from 'react'
 import Folder from './Folder'
-import { contextFiles } from '../../../Providers/FilesProvider'
 import useBoolean from 'bjork_react-hookup/core/useBoolean'
+import { contextEdit, modalModes } from '../../../Providers/EditProvider'
 
-const FolderContainer = () => {
-	const { files, hooks: { file: { selectedFile } } }: any = useContext(contextFiles)
-	const [ dense, , { toggle: toggleDense } ] = useBoolean()
-	const [ secondary, , { toggle: toggleSecondary } ] = useBoolean()
-	const [ content, , { toggle: toggleContent } ] = useBoolean()
-	const [ listContainer, setListContainer ] = useState<HTMLElement | null>(null)
-	
+interface Props {
+	props: {
+		files: Doc[],
+		selectedFile: string
+		isMounted: any
+		reload: () => void
+	}
+}
+
+const FolderContainer: React.FC<Props> = ({
+	props: {
+		files,
+		selectedFile,
+		isMounted,
+		reload
+	}
+}) => {
+	const 
+		[ dense, , { toggle: toggleDense } ] = useBoolean(),
+		[ secondary, , { toggle: toggleSecondary } ] = useBoolean(),
+		[ content, , { toggle: toggleContent } ] = useBoolean(),
+		[ listContainer, setListContainer ] = useState<HTMLElement | null>(null),
+		{ hooks: { modal: { setMode } } }: any = useContext(contextEdit),
+		addDoc = () => setMode(modalModes.add),
+		editDoc = () => setMode(modalModes.edit)
 
 	return <Folder props={{ 
 		files, 
@@ -21,7 +39,11 @@ const FolderContainer = () => {
 		toggleContent,
 		selectedFile,
 		listContainer,
-		setListContainer
+		setListContainer,
+		addDoc,
+		editDoc,
+		isMounted,
+		reload
 	}} />
 }
 

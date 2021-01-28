@@ -1,6 +1,6 @@
 const scrollTo = (
 	{ container, to, duration, onDone }
-	: { container: any, to: number, duration: number, onDone?: any }
+	: { container: any, to: number, duration: number, onDone?: () => void }
 ): void => {
 	const start = container.scrollTop
 	const change = to - start
@@ -22,9 +22,9 @@ const scrollTo = (
 }
 
 const scrollToElm = (
-	{ container, target, duration }
-	: { container: Element | null, target: Element | null, duration: number }
-): void => scrollTo({ container, to: getRelativePos(target).top, duration })
+	{ container, target, duration, options }
+	: { container: Element | null, target: Element | null, duration: number, options?: { onDone?: () => void, offsetY?: number } }
+): void => scrollTo({ container, to: getRelativePos(target).top + (options?.offsetY ?? 0), duration, onDone: options?.onDone })
 
 const getRelativePos =
 	(target: any): { 

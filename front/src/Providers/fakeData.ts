@@ -4,7 +4,7 @@ declare global {
 		title: string,
 		subtitle?: string, 
 		text?: string,
-		img?: string,
+		img?: any,
 		music?: string,
 	}
 }
@@ -16,13 +16,13 @@ interface FakeData {
 const fakeData: FakeData = {
 
 	files: [
-		{ id: 'h3u89rwr39w3', title: 'A Låt 1', text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`, img: 'fsd/img1', music: 'fsd/music1' },
-		{ id: 'a7osn689w3dd', title: 'a Låt 2', text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incidigna aliqua.`, img: 'fsd/img2' },
-		{ id: '4vn8w934rfr2', title: 'TLåt 3', text: `Lorem ipsum dolor sit amet, conunt ut labore et dolore magna aliqua.`, img: 'fsd/img3', music: 'fsd/music3' },
+		{ id: 'h3u89rwr39w3', title: 'A Låt 1', text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`, img: { name: 'img.png', url: "/" }, music: 'fsd/music1' },
+		{ id: 'a7osn689w3dd', title: 'a Låt 2', text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incidigna aliqua.`, img: { name: 'img.png', url: "/" } },
+		{ id: '4vn8w934rfr2', title: 'TLåt 3', text: `Lorem ipsum dolor sit amet, conunt ut labore et dolore magna aliqua.`, img: { name: 'img.png', url: "/" }, music: 'fsd/music3' },
 		{ id: 'hf93hf8309fj', title: '4 eeee', text: `Lorem ipsum dolor sit amet, conunt ut labore et dolore magna aliqua.`, music: 'fsd/music3' },
 		{ id: '938dd998939c', title: 'sdnasd5'},
 		{ id: '09x2em7tr6cc', title: 'Låt 6', music: 'fsd/music3' },
-		{ id: '2n8x61728c4c', title: '_ åt 7', img: 'fsd/img2' },
+		{ id: '2n8x61728c4c', title: '_ åt 7', img: { name: 'img.png', url: "/" } },
 		{ id: 'mp983hy3veji', title: 'Go, Lovely Rose', subtitle: 'Edmund Waller', text: `
 			Go, lovely Rose—
 			Tell her that wastes her time and me,
@@ -47,7 +47,7 @@ const fakeData: FakeData = {
 			May read in thee;
 			How small a part of time they share
 			That are so wondrous sweet and fair!
-		`, music: 'fsd/music3' },
+		`, music: 'fsd/music3', img: { name: 'img.png', url: "/" } },
 		{ id: 'n378c7209r307r', title: 'The Law of the Jungle', subtitle: 'Rudyard Kipling', text: `
 			Wash daily from nose-tip to tail-tip; drink deeply, but never too deep;
 

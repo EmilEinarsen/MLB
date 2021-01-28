@@ -1,50 +1,68 @@
 import React from 'react'
-import { makeStyles, Card, CardHeader, CardContent, IconButton, Box } from '@material-ui/core'
-import { MoreVert } from '@material-ui/icons'
-import { Empty } from 'antd'
+import { makeStyles, Card, CardHeader, CardContent, Box, CardMedia, Typography, Fab } from '@material-ui/core'
+import { Empty, Skeleton } from 'antd'
+import MenuDocument, { context } from '../MenuDocument'
+import { Edit } from '@material-ui/icons'
+import FabBox from '../FabBox'
 
 interface Props {
 	file: Doc | undefined
+	style?: object
+	props: any
 }
 
 const useStyles = makeStyles(theme => ({
 	root: {
 		display: 'grid',
-		alignContent: 'center',
-		height: '100%'
+		placeContent: 'center',
 	},
 	card: {
 		padding: theme.spacing(3, 2),
+		maxWidth: '80ch'
 	},
 }))
 
 const Document: React.FC<Props> = ({
-	file
+	file,
+	style,
+	props: {
+		editDoc,
+		isMounted
+	}
 }) => {
 	const classes = useStyles()
 
 	return (
-		<Box className={classes.root}>
-			<Card className={classes.card}>
+		<div ref={isMounted}>
+			<Box className={classes.root} style={style}>
 				{ file ?
 					<>
-						<CardHeader 
-							title={file.title} 
-							action={
-								<IconButton aria-label="settings">
-									<MoreVert />
-								</IconButton>
-							} 
-						/>
-						{ file.text &&
-							<CardContent component="p" style={{ whiteSpace: 'pre-line' }}>
-								{file.text}
-							</CardContent>
-						}
+						<Card className={classes.card}>
+							<CardHeader 
+								title={file.title}
+								subheader={ file.subtitle && file.subtitle }
+								action={ <MenuDocument envContext={context.document} /> } 
+							/>
+							{ file.img && <CardMedia src={file.img}><Skeleton.Image /></CardMedia> }
+							{ file.text &&
+								<CardContent component="p" style={{ whiteSpace: 'pre-line' }}>
+									<Typography variant="body2" color="textPrimary" component="p">
+										{file.text}
+									</Typography>
+								</CardContent>
+							}
+						</Card>
+						<FabBox onClick={editDoc}>
+							<Fab color="primary" size="small" aria-label="edit" onClick={editDoc}><Edit /></Fab>
+						</FabBox>
 					</>
-				: <Empty description={false} />}
-			</Card>
-		</Box>
+				: 
+					<Card className={classes.card}>
+						<Empty description={false} />
+					</Card> 
+				}
+			</Box>
+		</div>
 	)
 }
 

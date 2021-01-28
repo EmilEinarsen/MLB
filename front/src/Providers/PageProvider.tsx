@@ -31,7 +31,11 @@ const pages: Page[] = [
 
 const initialState = navigation.folder
 
-export const contextPage = createContext<ContextPageData | undefined>(undefined)
+export const contextPage = createContext<ContextPageData>({
+	page: initialState,
+	setPage: () => {},
+	pages: []
+})
 
 const PageProvider = ({ children }: { children: React.ReactChild }) => {
 	const [ page, setPage ] = useState<navigation>(initialState)

@@ -2,6 +2,7 @@ import { AppBar, Button, FormControlLabel, IconButton, makeStyles, Switch, Toolb
 import { MoreVert } from '@material-ui/icons'
 import { Drawer } from 'antd'
 import React from 'react'
+import MenuDocument, { context } from '../MenuDocument'
 
 interface Props {
 	props: {
@@ -53,9 +54,7 @@ const ListToolbar: React.FC<Props> = ({
 							Appearance
 						</Button>
 						<div style={{ justifySelf: 'end' }}>
-							<IconButton aria-label="settings">
-								<MoreVert />
-							</IconButton>
+							<MenuDocument envContext={context.list} />
 						</div>
 					</Toolbar>
 				</AppBar>

@@ -36,3 +36,12 @@ export const setToUrl = (params: string): void => {
 	const url = createUrl(params)
 	window.history.pushState({ path: url }, '', url)
 }
+
+export const cleanByKeys: any = (
+    obj: any,
+    keys: string[]
+) => {
+    let cleaned: any = {}
+    keys.forEach((key) => obj[key] && (cleaned[key] = obj[key]))
+    return cleaned
+}
