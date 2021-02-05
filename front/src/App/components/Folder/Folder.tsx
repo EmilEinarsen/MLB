@@ -48,46 +48,42 @@ const Folder: React.FC<Props> = ({
 	} 
 }) =>
 	<>
-		<Grid item xs={11} md={6} className="list" ref={setListContainer} style={{ maxHeight: 'calc( 100vh - 50px )', position: 'relative' }}>
-			<Grid xs={12}>
-				<Box py={4}>
-					<Affix 
-						ref={isMounted}
-						target={() => listContainer}
-						offsetTop={30}	
-					>
-						<ListToolbar props={{
-							dense,
-							toggleDense,
-							secondary,
-							toggleSecondary,
-							content,
-							toggleContent,
-						}}/>
-					</Affix>
-					<List 
-						list={group(files)} 
-						configuration={{ 
-							dense, 
-							secondary, 
-							content
-						}}
-					/>
-				</Box>
+		<Grid item xs={11} md={6} style={{ maxHeight: 'calc( 100vh - 50px )', position: 'relative' }}>
+			<Grid className="list" ref={setListContainer}>
+				<AlphabeticalSlider 
+					list={ Object.keys(group(files)).map((k,i)=>[k,i]) }
+				/>
+				<Grid xs={12}>
+					<Box py={4}>
+						<Affix 
+							ref={isMounted}
+							target={() => listContainer}
+							offsetTop={30}	
+						>
+							<ListToolbar props={{
+								dense,
+								toggleDense,
+								secondary,
+								toggleSecondary,
+								content,
+								toggleContent,
+							}}/>
+						</Affix>
+						<List 
+							list={group(files)} 
+							configuration={{ 
+								dense, 
+								secondary, 
+								content
+							}}
+						/>
+					</Box>
+				</Grid>
+				<FabBox>
+					<Fab onClick={reload} color="primary" size="small"><LoopRounded /></Fab>
+					<Fab onClick={addDoc} color="primary" size="small"><Add /></Fab>
+				</FabBox>
 			</Grid>
-			<FabBox>
-				<Fab onClick={reload} color="primary" size="small">
-					<LoopRounded />
-				</Fab>
-				<Fab onClick={addDoc} color="primary" size="small">
-					<Add />
-				</Fab>
-			</FabBox>
-			<AlphabeticalSlider 
-				list={
-					Object.keys(group(files)).map((k,i)=>[k,i])
-				}
-			/>
 		</Grid>
 		
 		<Hidden smDown>

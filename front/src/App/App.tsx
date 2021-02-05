@@ -1,6 +1,6 @@
 import React from 'react'
 import ThemeProvider from '../Providers/ThemeProvider'
-import FilesProvider from '../Providers/FilesProvider'
+import FilesProvider from '../Providers/DataProvider'
 import PageProvider from '../Providers/PageProvider'
 import EditProvider from '../Providers/EditProvider'
 import Main from './Main'

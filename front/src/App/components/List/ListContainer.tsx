@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { contextFiles } from '../../../Providers/FilesProvider'
+import { contextData } from '../../../Providers/DataProvider'
 import List from './List'
 
 interface Props {
@@ -15,10 +15,13 @@ const ListContainer: React.FC<Props> = ({
 	list,
 	configuration
 }) => {
-	const { hooks: {
-		check: { checked, addCheck, removeCheckByValue },
-		file: { setSelectedFile }
-	}}: any = useContext(contextFiles)
+	const {
+		collections,
+		hooks: {
+			check: { checked, addCheck, removeCheckByValue },
+			file: { setSelectedFile },
+		}
+	}: any = useContext(contextData)
 
 	const handleCheck = (id: string) =>
 		checked.includes(id)
@@ -27,7 +30,8 @@ const ListContainer: React.FC<Props> = ({
 
 	return (
 		<List 
-			configuration={configuration} 
+			configuration={configuration}
+			collections={collections}
 			list={list}
 			props={{
 				checked,

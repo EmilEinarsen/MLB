@@ -5,10 +5,12 @@ export { context } from './MenuDocument'
 
 interface Props {
     envContext: context
+    size?: 'small' | 'medium'
+    id?: string
 }
 
-const MenuDocumentContainer: React.FC<Props> = ({ envContext }) => {
-    const { hooks: { modal: { setMode } } }: any = useContext(contextEdit)
+const MenuDocumentContainer: React.FC<Props> = ({ envContext, size, id }) => {
+    const { hooks: { modal: { setMode } }, handleSetCollection }: any = useContext(contextEdit)
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -18,11 +20,12 @@ const MenuDocumentContainer: React.FC<Props> = ({ envContext }) => {
   
     const handleClose = (e: any) => {
         setMode(e.target.value)
+        id && handleSetCollection(id)
         setAnchorEl(null)
     }
    
     return <MenuDocument props={{
-        handleClose, handleClick, anchorEl, envContext
+        handleClose, handleClick, anchorEl, envContext, size
     }} />
 }
 

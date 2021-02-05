@@ -1,8 +1,9 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { Modal } from 'antd'
-import { contextFiles } from './FilesProvider'
+import { contextData } from './DataProvider'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import ModalEditor from '../App/components/ModalEditor'
+import { ACTION } from '../Hooks/useServer'
 
 export enum modalModes {
     'add',
@@ -13,6 +14,9 @@ export enum modalModes {
 }
 
 interface ContextEdit {
+    file?: Doc
+    files?: Doc[]
+    collection?: Collection
     hooks: {
         modal: {
             mode: modalModes, 
@@ -23,11 +27,12 @@ interface ContextEdit {
             setUpdate: React.Dispatch<React.SetStateAction<modalModes>>
         }
     }
-    file: undefined | Doc
+    handleSetCollection: (id: string) => void
     change: ({ type, id, payload }: { type: modalModes, id: string, payload: object }) => void
     reset: () => void
-    id: string,
+    id: string
     reload: () => void
+    rerender: () => void
 }
 
 export const contextEdit = createContext<ContextEdit | undefined>(undefined)
@@ -35,51 +40,60 @@ export const contextEdit = createContext<ContextEdit | undefined>(undefined)
 const EditProvider = (
     { children }: { children: ReactNode }
 ) => {
-    const {
-        files,
-        hooks: {
-            check: { checked },
-            file: { selectedFile } 
-        },
-        change,
-        reload
-    }: any = useContext(contextFiles)
-
-    const [ mode, setMode ] = useState<modalModes>(modalModes.none)
-    const [ update, setUpdate ] = useState<any>({})
-    
-    const reset = () => setMode(modalModes.none)
+    const 
+        {
+            files,
+            collections,
+            hooks: {
+                check: { checked },
+                file: { selectedFile } 
+            },
+            change,
+            reload,
+            rerender
+        }: any = useContext(contextData),
+        [ mode, setMode ] = useState<modalModes>(modalModes.none),
+        [ update, setUpdate ] = useState<any>({}),
+        reset = () => setMode(modalModes.none),
+        file = mode !== modalModes.add ? files.find((file: Doc) => file.id === selectedFile) : undefined,
+        [ collection, setCollection ] = useState<Collection | undefined>(undefined),
+        request = file ? ACTION.DOC : collection ? ACTION.COLLECTION : undefined,
+        id = selectedFile ? selectedFile : collection ? collection.id : undefined,
+        handleSetCollection = (id: string) => setCollection(collections.find((collection: Collection) => collection.id === id))
 
     useEffect(() => {
         selectedFile && mode === modalModes.remove && showDelete({ 
-            change: () => (reset(), change({ type: modalModes.remove, id: selectedFile })), 
-            reset, fileNames: files.filter((doc: Doc) => checked.includes(doc.id)).map((doc: Doc) => doc.title)
+            change: () => (reset(), change({ type: modalModes.remove, id: selectedFile, request })), 
+            reset, fileNames: [ file.title ]
         })
         checked.length && mode === modalModes.remove_mult && showDelete({ 
-            change: () => (reset(), change({ type: modalModes.remove, ids: checked })),
+            change: () => (reset(), change({ type: modalModes.remove, ids: checked, request })),
             reset, fileNames: files.filter((doc: Doc) => checked.includes(doc.id)).map((doc: Doc) => doc.title)
         })
     }, [ mode ])
 
     useEffect(() => {
         if(mode !== modalModes.edit && mode !== modalModes.add) return
-        change({ type: mode, id: selectedFile, payload: update })
+        console.log(id)
+        change({ type: mode, id, payload: update, request })
         reset()
     }, [ update ])
 
-    
-
     return (
         <contextEdit.Provider value={{
+            file,
+            files,
+            collection,
             hooks: { 
                 modal: { mode, setMode },
                 update: { update, setUpdate }
             },
-            file: mode !== modalModes.add ? files.find((file: Doc) => file.id === selectedFile) : undefined,
+            handleSetCollection,
             change,
             reset,
             id: selectedFile,
-            reload
+            reload,
+            rerender
         }}>
             { children }
             <ModalEditor />
@@ -87,13 +101,13 @@ const EditProvider = (
     )
 }
 
-function showDelete({ reset, change, mult, fileNames }: any) {
+function showDelete({ reset, change, fileNames }: any) {
     Modal.confirm({
-        title: fileNames.length !== 1
+        title: fileNames.length > 1
             ? `Are you sure you want to delete these files?` 
             : 'Are you sure you want to delete this file?'
         ,
-        content: fileNames.length !== 1 
+        content: fileNames.length > 1
             ? fileNames.map((title: string, index: number) => title+(index < fileNames.length-1 ? ', ' : '')) 
             : fileNames[0],
         icon: <ExclamationCircleOutlined />,

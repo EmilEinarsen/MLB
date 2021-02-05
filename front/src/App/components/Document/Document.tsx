@@ -33,7 +33,7 @@ const Document: React.FC<Props> = ({
 	const classes = useStyles()
 
 	return (
-		<div ref={isMounted}>
+		<>
 			<Box className={classes.root} style={style}>
 				{ file ?
 					<>
@@ -43,7 +43,7 @@ const Document: React.FC<Props> = ({
 								subheader={ file.subtitle && file.subtitle }
 								action={ <MenuDocument envContext={context.document} /> } 
 							/>
-							{ file.img && <CardMedia src={file.img}><Skeleton.Image /></CardMedia> }
+							{ file.img && <CardMedia component="img" width='100%' image={`http://localhost:3000/img/get/${file.img.name}`}></CardMedia> }
 							{ file.text &&
 								<CardContent component="p" style={{ whiteSpace: 'pre-line' }}>
 									<Typography variant="body2" color="textPrimary" component="p">
@@ -52,9 +52,6 @@ const Document: React.FC<Props> = ({
 								</CardContent>
 							}
 						</Card>
-						<FabBox onClick={editDoc}>
-							<Fab color="primary" size="small" aria-label="edit" onClick={editDoc}><Edit /></Fab>
-						</FabBox>
 					</>
 				: 
 					<Card className={classes.card}>
@@ -62,7 +59,11 @@ const Document: React.FC<Props> = ({
 					</Card> 
 				}
 			</Box>
-		</div>
+			<FabBox onClick={editDoc}>
+				<Fab color="primary" size="small" aria-label="edit" onClick={editDoc}><Edit /></Fab>
+			</FabBox>
+			<div ref={isMounted}></div>
+		</>
 	)
 }
 

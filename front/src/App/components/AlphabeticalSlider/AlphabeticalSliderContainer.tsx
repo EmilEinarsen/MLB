@@ -22,7 +22,6 @@ const AlphabeticalSliderContainer: React.FC<Props> = ({ list }) => {
 	const handleChange = (e: object, value: number | number[]): void => {
 		const key = marks.find(mark=>mark.value === value)?.label
 		if(!key) return
-		console.log(document.querySelector(".list"))
 		scrollContainerChildIntoView({
 			container: document.querySelector(".list"), 
 			target: document.querySelector(`#group-${key}`), 

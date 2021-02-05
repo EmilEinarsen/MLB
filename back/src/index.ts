@@ -1,13 +1,7 @@
-import express, { Request, Response } from 'express'
+import "reflect-metadata"
+import { createConnection } from "typeorm"
 
-const app: express.Application = express()
 
-const port = 3000
-
-app.get('/', ( req: Request, res: Response ) => {
-	res.send('Hello worldd')
-})
-
-app.listen(port, () => {
-	console.log('Port: ' + port)
+createConnection().then(async () => {
+    import('./routes/routes')
 })

@@ -14,9 +14,17 @@ export const ACTION = {
     },
     IMG: {
         create: 'img/create',
-        delete: 'img/create'
+        delete: 'img/delete'
     },
-    get: '',
+    COLLECTION: {
+        create: 'collection/create',
+        get: 'collection/get',
+        update: 'collection/update',
+        delete: 'collection/delete',
+        
+        get_all: 'collection/get_all',
+    },
+    get_all: '',
 }
 
 const postOption = (payload: any, options?: any): object => (options ? options : {
@@ -31,7 +39,7 @@ const postOption = (payload: any, options?: any): object => (options ? options :
 
 export const fetchServer = async ({ dest, payload, options }: { dest: string, payload?: any, options?: any }) => {
     try {
-        let response = payload 
+        let response = payload || options
             ? await fetch(`${baseUrl}${dest}`, postOption(payload, options)) 
             : await fetch(`${baseUrl}${dest}`)
         return await response.json()

@@ -5,7 +5,7 @@ import useServer, { ACTION } from "./useServer"
 
 const useInitialFetch = () => {
     const initial = useRef(true)
-    const [ state, execute ] = useServer(ACTION.get, undefined, false)
+    const [ state, execute ] = useServer(ACTION.get_all, undefined, false)
     
     useEffect(() => {
         

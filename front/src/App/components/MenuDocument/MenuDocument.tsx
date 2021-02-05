@@ -10,19 +10,21 @@ interface Props {
         handleClick: (event: React.MouseEvent<HTMLButtonElement>) => void
         anchorEl: null | HTMLElement
         envContext: context
+        size?: 'small' | 'medium'
     }
 }
 
 export enum context {
     'document',
-    'list'
+    'list',
+    'collection'
 }
 
 const MenuDocument: React.FC<Props> = ({ 
-    props: { handleClose, handleClick, anchorEl, envContext }
+    props: { handleClose, handleClick, anchorEl, envContext, size }
 }) => (
     <>
-        <IconButton onClick={handleClick}>
+        <IconButton onClick={handleClick} size={size}>
             <MoreVert />
         </IconButton>
         <Menu
@@ -33,7 +35,7 @@ const MenuDocument: React.FC<Props> = ({
             TransitionComponent={Fade}
         >
             {
-                envContext === context.document && 
+                (envContext === context.document || envContext === context.collection) && 
                 <MenuItem onClick={handleClose} value={modalModes.edit}>
                     <Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Edit fontSize="inherit" /></Typography>
                     Edit

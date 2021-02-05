@@ -1,44 +1,29 @@
 import React from 'react'
-import { Upload } from 'antd'
+import { Button, Upload } from 'antd'
+import { UploadOutlined } from '@ant-design/icons'
 
 interface Props {
     props: {
         imgList: any[]
-        handleImgUpload: (img: any) => any
-        handleImgRemove: () => Promise<boolean>
+        handleImgChange: (list?: any) => any
     }
 }
 
 const Uploader: React.FC<Props> = ({ 
     props: {
         imgList,
-        handleImgRemove,
-        handleImgUpload
+        handleImgChange
     }
 }) => {
     return (
         <>
             <Upload
                 name='photo'
-                onChange={(info) => {
-                    console.log(info)
-                }}
-                customRequest={async (options: any) => {
-                    const { onSuccess, onError, file, onProgress } = options
-                    
-                    try {
-                        onProgress({ percent: 100 })
-                        await handleImgUpload(file)
-                        onSuccess('Ok')
-                    } catch (error) {
-                        console.log('Error: ', error)
-                        onError({ error: new Error('Some error') })
-                    }
-                }}
-                onRemove={handleImgRemove}
-                listType="picture-card"
+                onRemove={() => handleImgChange()}
+                beforeUpload={(img) => (handleImgChange(img), false) }
+                fileList={imgList}
             >
-                { !imgList.length && '+ Upload' }
+                <Button icon={<UploadOutlined />}>Select File</Button>
             </Upload>
         </>
     )
