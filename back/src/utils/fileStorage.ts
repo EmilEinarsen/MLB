@@ -3,6 +3,7 @@ import multer from 'multer'
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, `public/assets`),
     filename: (req, file, cb) => {
+		console.log(file)
         let fileEnding = file.originalname.split('.')
         fileEnding = fileEnding[fileEnding.length-1]
         cb(null, `${file.fieldname}-${Date.now()}.${fileEnding}`)

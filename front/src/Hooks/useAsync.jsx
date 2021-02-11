@@ -40,12 +40,12 @@ const initialState = {
 const useAsync = (asyncFunction, immediate = true) => {
 	const [ state, dispatch ] = useReducer(fetchReducer, initialState)
 	
-	const execute = useCallback(async () => {
+	const execute = useCallback(async (value) => {
 		dispatch({type: ACTION.FETCH})
 
 		try {
 
-			let response = await asyncFunction()
+			let response = await asyncFunction(value)
 			dispatch({type: ACTION.RESPONSE, payload: {value: response}})
 
 		} catch (error) {

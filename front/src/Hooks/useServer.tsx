@@ -1,5 +1,6 @@
 import React from 'react'
 import useAsync from './useAsync'
+import cookie from 'bjork_cookie'
 
 const baseUrl = 'http://localhost:3000/'
 
@@ -23,29 +24,49 @@ export const ACTION = {
         delete: 'collection/delete',
         
         get_all: 'collection/get_all',
-    },
-    get_all: '',
+	},
+	USER: {
+		create: 'user/create'
+	},
+	get_all: '',
+	login: 'login'
 }
 
-const postOption = (payload: any, options?: any): object => (options ? options : {
+export const postOption = (payload?: any, options: any = { JSON: true } ): object => ({
     method: 'POST',
-    headers: {
+    headers: options.JSON ? {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': true 
+		'Access-Control-Allow-Origin': true,
+		'auth': cookie.get('token')
+    } : {
+		'Access-Control-Allow-Origin': true,
+		'auth': cookie.get('token')
     },
-    mode : 'cors',
-    body: JSON.stringify(payload),
+    body: options.JSON ? JSON.stringify(payload) : payload,
 })
 
-export const fetchServer = async ({ dest, payload, options }: { dest: string, payload?: any, options?: any }) => {
-    try {
-        let response = payload || options
-            ? await fetch(`${baseUrl}${dest}`, postOption(payload, options)) 
-            : await fetch(`${baseUrl}${dest}`)
-        return await response.json()
-    } catch (error) {
-        return error
+export const getOption = (): object => ({
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+		'Access-Control-Allow-Origin': true,
+		'auth': cookie.get('token')
     }
+})
+
+export const actionUrl = (dest: string) => `${baseUrl}${dest}` 
+
+export const fetchServer = async ({ dest, payload, options }: { dest: string, payload?: any, options?: any }) => {
+	let response = payload || options
+		? await fetch(actionUrl(dest), postOption(payload, options)) 
+		: await fetch(actionUrl(dest), getOption())
+		
+	if(!response.ok) throw response
+	try {
+		return await response.json()
+	} catch (error) {
+		return response
+	}
 }
 
 const useFetch = (
@@ -53,7 +74,7 @@ const useFetch = (
     payload?: any,
     immediate: boolean = true
 ) => {
-    return useAsync(() => fetchServer({ dest, payload }), immediate)
+    return useAsync(async (altPayload: any) => await fetchServer({ dest, payload: altPayload ?? payload }), immediate)
 }
 
 export default useFetch

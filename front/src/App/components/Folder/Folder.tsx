@@ -9,6 +9,7 @@ import { group } from '../../../Helpers'
 import { Affix } from 'antd'
 import { Add, LoopRounded } from '@material-ui/icons'
 import FabBox from '../FabBox'
+import MenuDocument, { context } from '../MenuDocument'
 
 interface Props {
 	props: {
@@ -22,9 +23,8 @@ interface Props {
 		selectedFile: string,
 		listContainer: HTMLElement | null,
 		setListContainer: (instance: HTMLDivElement | null) => void
-		addDoc: () => void
 		editDoc: () => void
-		isMounted: any
+		refMounted: any
 		reload: () => void
 	}
 }
@@ -41,9 +41,8 @@ const Folder: React.FC<Props> = ({
 		selectedFile,
 		listContainer,
 		setListContainer,
-		addDoc,
 		editDoc,
-		isMounted,
+		refMounted,
 		reload
 	} 
 }) =>
@@ -53,10 +52,9 @@ const Folder: React.FC<Props> = ({
 				<AlphabeticalSlider 
 					list={ Object.keys(group(files)).map((k,i)=>[k,i]) }
 				/>
-				<Grid xs={12}>
+				<Grid item xs={12}>
 					<Box py={4}>
-						<Affix 
-							ref={isMounted}
+						<Affix
 							target={() => listContainer}
 							offsetTop={30}	
 						>
@@ -76,12 +74,19 @@ const Folder: React.FC<Props> = ({
 								secondary, 
 								content
 							}}
+							props={{ refMounted }}
 						/>
 					</Box>
 				</Grid>
 				<FabBox>
 					<Fab onClick={reload} color="primary" size="small"><LoopRounded /></Fab>
-					<Fab onClick={addDoc} color="primary" size="small"><Add /></Fab>
+					<MenuDocument
+						transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+						envContext={context.add} 
+						altButton={(onClick: any) => 
+							<Fab onClick={onClick} color="primary" size="small"><Add /></Fab>
+						} 
+					/>
 				</FabBox>
 			</Grid>
 		</Grid>

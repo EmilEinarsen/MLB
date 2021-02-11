@@ -16,7 +16,11 @@ const bind = (reduceMotion:  boolean) => (
 	}
 )
 
-const LoadingScreen = ({ props: { loading } }: any) => {
+interface Props {
+	loading: any
+}
+
+const LoadingScreen: React.FC<Props> = ({ loading }) => {
 	const reduceMotion = useReduceMotion()
 	
 	return loading ? 

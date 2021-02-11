@@ -9,11 +9,17 @@ interface Props {
 		secondary: boolean,
 		content: boolean
 	}
+	props: { 
+		refMounted: any 
+	}
 }
 
 const ListContainer: React.FC<Props> = ({ 
 	list,
-	configuration
+	configuration,
+	props: {
+		refMounted
+	}
 }) => {
 	const {
 		collections,
@@ -36,7 +42,8 @@ const ListContainer: React.FC<Props> = ({
 			props={{
 				checked,
 				handleCheck,
-				setSelectedFile
+				setSelectedFile,
+				refMounted
 			}}
 		/>
 	)

@@ -18,6 +18,7 @@ interface Props {
 		checked: string[],
 		handleCheck: (value: string) => void,
 		setSelectedFile: (value: string) => void,
+		refMounted: any
 	}
 }
 
@@ -32,7 +33,8 @@ const _List: React.FC<Props> = ({
 	props: {
 		checked,
 		handleCheck,
-		setSelectedFile
+		setSelectedFile,
+		refMounted
 	}
 }) => {
 	
@@ -40,6 +42,7 @@ const _List: React.FC<Props> = ({
 		<Box>
 			{ collections.map((collection: Collection) => 
 				<CollectionContainer 
+					key={collection.id}
 					collection={collection}
 					props={{
 						checked,
@@ -53,7 +56,7 @@ const _List: React.FC<Props> = ({
 			
 			<Divider />
 
-			{ Object.entries(list).map(([key, files], index) =>
+			{ Object.entries(list).map(([key, files]) =>
 				<List dense={dense} key={key+'List'} id={'group-'+key}>
 
 					<Box pl={2} >
@@ -70,6 +73,7 @@ const _List: React.FC<Props> = ({
 
 					{ files.map(file =>
 						<ListItemFile 
+							key={file.id}
 							props={{
 								file,
 								checked,
@@ -83,6 +87,8 @@ const _List: React.FC<Props> = ({
 
 				</List>
 			)}
+
+			<div ref={refMounted}></div>
 		</Box>
 	)
 }

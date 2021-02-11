@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { createContext, ReactNode, useContext, useState, useEffect } from "react"
-import data, { addDoc, removeDoc, updateData, updateDoc } from './serverData'
+import serverData, { createData, deleteData, updateData } from './serverData'
 import useArray from 'bjork_react-hookup/core/useArray'
 import { contextPage, navigation } from "./PageProvider"
 import useMediaQuery from "../Hooks/useMediaQuery"
@@ -23,12 +23,12 @@ declare global {
 
 export const contextData = createContext<ContextData | undefined>(undefined)
 
-const addFile = async ({ payload, rerender, request }: { payload: object, rerender: () => void, request: any }) => {
-	let doc = await fetchServer({ dest: request.create, payload })
-	doc && (addDoc(doc), rerender())
+const addData = async ({ payload, rerender, request }: { payload: object, rerender: () => void, request: any }) => {
+	const res = await fetchServer({ dest: request.create, payload })
+	res && (createData(request, res), rerender())
 }
 
-const editFile = async ({ id, payload, rerender, request }: { id: string, payload: any, rerender: () => void, request: any }) => {
+const editData = async ({ id, payload, rerender, request }: { id: string, payload: any, rerender: () => void, request: any }) => {
 	let 
 		{ img, ...subPayload } = payload,
 		response = await fetchServer({
@@ -37,16 +37,15 @@ const editFile = async ({ id, payload, rerender, request }: { id: string, payloa
 		})
 	;response && (updateData(request, id, img ? { ...subPayload, img } : payload), rerender())
 }
-const removeFile = async ({ id, ids, rerender, request }: { id?: string, ids?: string[], rerender: () => void, request: any }) => 
+const removeData = async ({ id, ids, rerender, request }: { id?: string, ids?: string[], rerender: () => void, request: any }) => 
 	await fetchServer({ dest: request.delete, payload: { id, ids } })
-		&& (removeDoc({ id, ids }), rerender())
+		&& (deleteData(request, { id, ids }), rerender())
 
 const FilesProvider = (
 	{ children }: { children: ReactNode }
 ) => {
 	const { setPage } = useContext(contextPage)
-	const [ files, setFiles ] = useState<any>(data.docs)
-	const [ collections, setCollections ] = useState<Collection[]>(data.collections)
+	const [ data, setData ] = useState<Data>(serverData)
 	const [ response, serverRequest ] = useServer(ACTION.get_all, undefined, false)
 
 	const [ checked, , { 
@@ -58,11 +57,7 @@ const FilesProvider = (
 	
 	const matches = useMediaQuery({})
 
-	const rerender = () => {
-		setFiles([ ...data.docs ])
-		setCollections([ ...data.collections ])
-		console.log(data.collections)
-	}
+	const rerender = () => setData({ ...serverData })
 
 	useEffect(() => {
 		if(response.pending) return
@@ -77,8 +72,8 @@ const FilesProvider = (
 
 	return (
 		<contextData.Provider value={{ 
-			files,
-			collections,
+			files: data.docs,
+			collections: data.collections,
 			hooks: {
 				check: { checked, addCheck, removeCheckByValue },
 				file: { 
@@ -91,11 +86,10 @@ const FilesProvider = (
 				}
 			},
 			change: ({ type, request, ...rest }: any) => {
-				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-				type === modalModes.edit && editFile({ rerender, request, ...rest }),
-				type === modalModes.remove && removeFile({ rerender, request, ...rest }),
-				type === modalModes.remove_mult && removeFile({ rerender, request, ...rest }),
-				type === modalModes.add && addFile({ rerender, request, ...rest })
+				type === modalModes.edit && editData({ rerender, request, ...rest })
+				type === modalModes.remove && removeData({ rerender, request, ...rest })
+				type === modalModes.remove_mult && removeData({ rerender, request, ...rest })
+				;(type === modalModes.add_collection || type === modalModes.add_doc) && addData({ rerender, request, ...rest })
 			},
 			reload: serverRequest,
 			rerender

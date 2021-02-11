@@ -5,9 +5,11 @@ import upload from "../utils/fileStorage"
 
 const docController = {
     create: async (req: Request, res: Response) => {
+		const userId = res.locals.jwtPayload.userId
+
         let result = !req.body.length 
-            ? await docModel.create(req.body) 
-            : await docModel.createMult(req.body)
+            ? await docModel.create(userId, req.body) 
+            : await docModel.createMult(userId, req.body)
 
         res.send(result)
     },

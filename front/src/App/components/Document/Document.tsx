@@ -27,7 +27,7 @@ const Document: React.FC<Props> = ({
 	style,
 	props: {
 		editDoc,
-		isMounted
+		refMounted
 	}
 }) => {
 	const classes = useStyles()
@@ -36,23 +36,21 @@ const Document: React.FC<Props> = ({
 		<>
 			<Box className={classes.root} style={style}>
 				{ file ?
-					<>
-						<Card className={classes.card}>
-							<CardHeader 
-								title={file.title}
-								subheader={ file.subtitle && file.subtitle }
-								action={ <MenuDocument envContext={context.document} /> } 
-							/>
-							{ file.img && <CardMedia component="img" width='100%' image={`http://localhost:3000/img/get/${file.img.name}`}></CardMedia> }
-							{ file.text &&
-								<CardContent component="p" style={{ whiteSpace: 'pre-line' }}>
-									<Typography variant="body2" color="textPrimary" component="p">
-										{file.text}
-									</Typography>
-								</CardContent>
-							}
-						</Card>
-					</>
+					<Card className={classes.card}>
+						<CardHeader 
+							title={file.title}
+							subheader={ file.subtitle && file.subtitle }
+							action={ <MenuDocument envContext={context.document} /> } 
+						/>
+						{ file.img && <CardMedia component="img" width='100%' image={`http://localhost:3000/img/get/${file.img.name}`}></CardMedia> }
+						{ file.text &&
+							<CardContent component="p" style={{ whiteSpace: 'pre-line' }}>
+								<Typography variant="body2" color="textPrimary" component="span">
+									{file.text}
+								</Typography>
+							</CardContent>
+						}
+					</Card>
 				: 
 					<Card className={classes.card}>
 						<Empty description={false} />
@@ -62,7 +60,7 @@ const Document: React.FC<Props> = ({
 			<FabBox onClick={editDoc}>
 				<Fab color="primary" size="small" aria-label="edit" onClick={editDoc}><Edit /></Fab>
 			</FabBox>
-			<div ref={isMounted}></div>
+			<div ref={refMounted}></div>
 		</>
 	)
 }

@@ -4,9 +4,11 @@ import { contextData } from './DataProvider'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import ModalEditor from '../App/components/ModalEditor'
 import { ACTION } from '../Hooks/useServer'
+import { APPEARANCE } from '../App/components/ModalEditor/ModalEditor'
 
 export enum modalModes {
-    'add',
+	'add_collection',
+	'add_doc',
 	'edit',
     'remove',
     'remove_mult',
@@ -32,7 +34,8 @@ interface ContextEdit {
     reset: () => void
     id: string
     reload: () => void
-    rerender: () => void
+	rerender: () => void
+	appearance: APPEARANCE
 }
 
 export const contextEdit = createContext<ContextEdit | undefined>(undefined)
@@ -55,26 +58,37 @@ const EditProvider = (
         [ mode, setMode ] = useState<modalModes>(modalModes.none),
         [ update, setUpdate ] = useState<any>({}),
         reset = () => setMode(modalModes.none),
-        file = mode !== modalModes.add ? files.find((file: Doc) => file.id === selectedFile) : undefined,
+        file = (mode === modalModes.edit || mode === modalModes.remove || mode === modalModes.remove_mult) ? files.find((file: Doc) => file.id === selectedFile) : undefined,
         [ collection, setCollection ] = useState<Collection | undefined>(undefined),
-        request = file ? ACTION.DOC : collection ? ACTION.COLLECTION : undefined,
-        id = selectedFile ? selectedFile : collection ? collection.id : undefined,
-        handleSetCollection = (id: string) => setCollection(collections.find((collection: Collection) => collection.id === id))
+		request = 
+			mode === modalModes.add_collection ? ACTION.COLLECTION 
+				: mode === modalModes.add_doc ? ACTION.DOC 
+				: mode === modalModes.remove_mult ? ACTION.DOC
+				: collection ? ACTION.COLLECTION
+				: file ? ACTION.DOC
+				: undefined
+		,
+        id = collection ? collection.id : selectedFile ? selectedFile : undefined,
+		handleSetCollection = (id: string) => setCollection(id ? collections.find((collection: Collection) => collection.id === id) : undefined),
+		appearance = 
+			mode === modalModes.edit ? 
+				collection ? APPEARANCE.collection : file ? APPEARANCE.file : APPEARANCE.none
+			: 
+				mode === modalModes.add_collection ? APPEARANCE.collection : mode === modalModes.add_doc ? APPEARANCE.file : APPEARANCE.none
 
     useEffect(() => {
-        selectedFile && mode === modalModes.remove && showDelete({ 
-            change: () => (reset(), change({ type: modalModes.remove, id: selectedFile, request })), 
-            reset, fileNames: [ file.title ]
+       	mode === modalModes.remove && showDelete({ 
+            change: () => (change({ type: modalModes.remove, id, request }), reset()), 
+            reset, fileNames: file ? [ file.title ] : undefined, collectionName: collection?.title
         })
         checked.length && mode === modalModes.remove_mult && showDelete({ 
-            change: () => (reset(), change({ type: modalModes.remove, ids: checked, request })),
+            change: () => (change({ type: modalModes.remove, ids: checked, request }), reset()),
             reset, fileNames: files.filter((doc: Doc) => checked.includes(doc.id)).map((doc: Doc) => doc.title)
         })
     }, [ mode ])
 
     useEffect(() => {
-        if(mode !== modalModes.edit && mode !== modalModes.add) return
-        console.log(id)
+		if(mode !== modalModes.edit && mode !== modalModes.add_collection && mode !== modalModes.add_doc) return
         change({ type: mode, id, payload: update, request })
         reset()
     }, [ update ])
@@ -86,14 +100,15 @@ const EditProvider = (
             collection,
             hooks: { 
                 modal: { mode, setMode },
-                update: { update, setUpdate }
+				update: { update, setUpdate }
             },
             handleSetCollection,
             change,
             reset,
             id: selectedFile,
             reload,
-            rerender
+			rerender,
+			appearance
         }}>
             { children }
             <ModalEditor />
@@ -101,15 +116,22 @@ const EditProvider = (
     )
 }
 
-function showDelete({ reset, change, fileNames }: any) {
+function showDelete({ reset, change, fileNames, collectionName }: any) {
     Modal.confirm({
-        title: fileNames.length > 1
-            ? `Are you sure you want to delete these files?` 
-            : 'Are you sure you want to delete this file?'
+		title: 
+			fileNames ? 
+				fileNames.length > 1
+					? `Are you sure you want to delete these files?` 
+					: 'Are you sure you want to delete this file?'
+			: `Are you sure you want to delete this folder?`
         ,
-        content: fileNames.length > 1
-            ? fileNames.map((title: string, index: number) => title+(index < fileNames.length-1 ? ', ' : '')) 
-            : fileNames[0],
+		content: 
+			fileNames ? 
+				fileNames.length > 1
+					? fileNames.map((title: string, index: number) => title+(index < fileNames.length-1 ? ', ' : '')) 
+					: fileNames[0]
+			: collectionName
+		,
         icon: <ExclamationCircleOutlined />,
         okText: 'Yes',
         okType: 'danger',

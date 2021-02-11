@@ -1,6 +1,7 @@
 import { Connection, getConnection } from "typeorm"
 import Doc, { KEYS } from "../entity/Doc"
 import Image from "../entity/Image"
+import { User } from "../entity/User"
 import imgModel from "./imgModel"
 
 const con: Connection = getConnection()
@@ -15,10 +16,11 @@ const clean = (
 }
 
 const docModel = {
-    create: async (payload: object) => {
+    create: async (userId, payload: object) => {
         try {
+			const user = await User.getById(userId)
             return await con.manager.save(
-                con.manager.create(Doc, clean(payload))
+                con.manager.create(Doc, { ...clean(payload), user })
             )
         } catch (error) {
             console.log(error)
@@ -60,11 +62,12 @@ const docModel = {
         }
     },
 
-    createMult: async (payload: Array<object>) => {
+    createMult: async (userId, payload: Array<object>) => {
         try {
-            if(!payload.length) throw 'Invalid payload type'
+			if(!payload.length) throw 'Invalid payload type'
+			const user = await User.getById(userId)
             const docs = []
-            payload.forEach(doc => docs.push(con.manager.create(Doc, clean(doc))))
+            payload.forEach(doc => docs.push(con.manager.create(Doc, { ...clean(doc), user })))
             
             return await con.manager.save(docs)
         } catch (error) {

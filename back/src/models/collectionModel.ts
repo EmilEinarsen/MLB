@@ -1,13 +1,15 @@
 import { Connection, getConnection } from "typeorm"
 import Collection from "../entity/Collection"
+import { User } from "../entity/User"
 
 const con: Connection = getConnection()
 
 const collectionModel = {
-    create: async (payload: object) => {
+    create: async (userId, payload: object) => {
         try {
+			const user = await User.getById(userId)
             return await con.manager.save(
-                con.manager.create(Collection, payload)
+                con.manager.create(Collection, { ...payload, user })
             )
         } catch (error) {
             console.log(error)

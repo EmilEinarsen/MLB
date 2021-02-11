@@ -13,8 +13,15 @@ interface Props {
         handleImgChange: (img: any) => any
         formRef: any
         handleSave: () => void
-        setSelectedDocs: (values: string[]) => void
+		setSelectedDocs: (values: string[]) => void
+		appearance: APPEARANCE
     }
+}
+
+export enum APPEARANCE {
+	'file',
+	'collection',
+	'none'
 }
 
 const ModalEditor: React.FC<Props> = ({
@@ -28,7 +35,8 @@ const ModalEditor: React.FC<Props> = ({
         formRef, 
         handleSave, 
         handleImgChange,
-        setSelectedDocs
+		setSelectedDocs,
+		appearance
     }
 }) => (
     <Modal
@@ -39,37 +47,43 @@ const ModalEditor: React.FC<Props> = ({
         width={800}
         okText='Save'
     >´
-        { file ? 
-            <Form labelAlign='right' layout='vertical' ref={formRef}>
-                <Form.Item label="Title:" name="title">
-                    <Input.TextArea showCount maxLength={100} defaultValue={file.title} allowClear />
-                </Form.Item>
+		{ 
+			appearance === APPEARANCE.file ? 
+				<Form labelAlign='right' layout='vertical' ref={formRef} initialValues={{
+					title: file?.title,
+					subtitle: file?.subtitle,
+					text: file?.text
+				}}>
+					<Form.Item label="Title:" name="title">
+						<Input.TextArea showCount maxLength={100} allowClear />
+					</Form.Item>
 
-                <Form.Item label="Subtitle:" name="subtitle">
-                    <Input.TextArea showCount maxLength={100} defaultValue={file.subtitle} allowClear />
-                </Form.Item>
+					<Form.Item label="Subtitle:" name="subtitle">
+						<Input.TextArea showCount maxLength={100} allowClear />
+					</Form.Item>
 
-                <Form.Item label="Text:" name="text">
-                    <Input.TextArea autoSize showCount defaultValue={file.text} allowClear/>
-                </Form.Item>
+					<Form.Item label="Text:" name="text">
+						<Input.TextArea autoSize showCount allowClear/>
+					</Form.Item>
 
-                <Form.Item label="Image:" name="image">
-                    <Uploader props={{ imgList, handleImgChange }} />
-                </Form.Item>
-            </Form>
+					<Form.Item label="Image:" name="image">
+						<Uploader props={{ imgList, handleImgChange }} />
+					</Form.Item>
+				</Form>
 
-            : collection ?
-            <Form labelAlign='right' layout='vertical' ref={formRef}>
-                <Form.Item label="Title:" name="title">
-                    <Input.TextArea showCount maxLength={100} defaultValue={collection.title} allowClear />
-                </Form.Item>
+			: appearance === APPEARANCE.collection ?
+				<Form labelAlign='right' layout='vertical' ref={formRef} initialValues={{ title: collection?.title }}>
+					<Form.Item label="Title:" name="title">
+						<Input.TextArea showCount maxLength={100} allowClear />
+					</Form.Item>
 
-                <Select mode="tags" style={{ width: '100%' }} placeholder="Tags Mode" onChange={values => setSelectedDocs(values)} defaultValue={collection.docs.map(doc=>doc.id)}>
-                    {files?.map(doc => <Select.Option value={doc.id}>{ doc.title }</Select.Option>)}
-                </Select>
-            </Form>
+					<Select mode="tags" style={{ width: '100%' }} placeholder="Tags Mode" onChange={values => setSelectedDocs(values)} defaultValue={collection?.docs?.map(doc=>doc.id)}>
+						{files?.map(doc => <Select.Option key={doc.id} value={doc.id}>{ doc.title }</Select.Option>)}
+					</Select>
+				</Form>
 
-            : <><p>No Structure available</p></>
+			: 
+				<><p>No Structure available</p></>
         }
     </Modal>
 )

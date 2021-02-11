@@ -1,24 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react'
-import useBoolean from 'bjork_react-hookup/core/useBoolean'
-import useInitialFetch from '../Hooks/useInitialFetch'
+import React, { useRef, useState } from 'react'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
-import LoadingScreen from './LoadingScreen'
-import ErrorPage from './ErrorPage'
+import 'antd/dist/antd.css'
 
-const AppContainer = () => {
+interface Props {
+	refMounted: any
+}
+
+const AppContainer: React.FC<Props> = ({ refMounted }) => {
 	const initial = useRef(true)
-	
-	const state = useInitialFetch()
-
 	const [ component, setComponent ] = useState<any>({ default: undefined })
-	
-	const isMounted = useRef()
-
-	const [ loading, , { setFalse } ] = useBoolean(true)
-
-	useEffect(() => {
-		!state.pending && isMounted.current && setFalse()
-	}, [setFalse, state.pending])
+	const App = component.default
 
 	const handleResponse = async () => {
 		initial.current = false
@@ -28,15 +19,11 @@ const AppContainer = () => {
 		setComponent({ default: response.default})
 	}
 
-	initial.current && state.value && handleResponse()
-	
-	const App = component.default
+	initial.current && handleResponse()
 	
 	return(
 		<>
-			<LoadingScreen props={{ loading }} />
-			{ state.value && App && <App props={{ isMounted }} /> }
-			{ state.error && <ErrorPage props={{ isMounted }} />}
+			{ App && <App props={{ refMounted }} /> }
 		</>
 	)
 }

@@ -1,6 +1,6 @@
 import React from 'react'
-import { Fade, IconButton, Menu, MenuItem, Typography } from '@material-ui/core'
-import { Delete, Edit, MoreVert } from '@material-ui/icons'
+import { Fade, IconButton, Menu, MenuItem, PopoverOrigin, Typography } from '@material-ui/core'
+import { Delete, Edit, MoreVert, Folder, Description } from '@material-ui/icons'
 import { modalModes } from '../../../Providers/EditProvider'
 import './MenuDocument.sass'
 
@@ -10,46 +10,68 @@ interface Props {
         handleClick: (event: React.MouseEvent<HTMLButtonElement>) => void
         anchorEl: null | HTMLElement
         envContext: context
-        size?: 'small' | 'medium'
+		size?: 'small' | 'medium'
+		altButton?: (onClick: (event: React.MouseEvent<HTMLButtonElement>) => void) => JSX.Element
+		transformOrigin?: PopoverOrigin
     }
 }
 
 export enum context {
     'document',
     'list',
-    'collection'
+	'collection',
+	'add'
 }
 
 const MenuDocument: React.FC<Props> = ({ 
-    props: { handleClose, handleClick, anchorEl, envContext, size }
+	props: { handleClose, handleClick, anchorEl, envContext, size, altButton, transformOrigin }
 }) => (
     <>
-        <IconButton onClick={handleClick} size={size}>
-            <MoreVert />
-        </IconButton>
+		{ altButton ? 
+			altButton(handleClick) 
+		:
+			<IconButton onClick={handleClick} size={size}>
+				<MoreVert />
+			</IconButton>
+		}
         <Menu
             anchorEl={anchorEl}
             keepMounted
             open={!!anchorEl}
             onClose={handleClose}
-            TransitionComponent={Fade}
+			TransitionComponent={Fade}
+			transformOrigin={transformOrigin}
         >
-            {
-                (envContext === context.document || envContext === context.collection) && 
-                <MenuItem onClick={handleClose} value={modalModes.edit}>
-                    <Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Edit fontSize="inherit" /></Typography>
-                    Edit
-                </MenuItem>
-            }
-            {
-                true && 
-                <MenuItem 
-                    onClick={handleClose} 
-                    value={ envContext === context.document ? modalModes.remove : modalModes.remove_mult }>
-                    <Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Delete fontSize="inherit" /></Typography>
-                    Delete
-                </MenuItem>
-            }
+            { envContext !== context.add ? 
+				[
+					(envContext === context.document || envContext === context.collection) &&
+					<MenuItem key={modalModes.edit} onClick={handleClose} value={modalModes.edit}>
+						<Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Edit fontSize="inherit" /></Typography>
+						Edit
+					</MenuItem>,
+					
+					true && 
+						<MenuItem
+							key={modalModes.remove}
+							onClick={handleClose} 
+							value={ envContext !== context.list ? modalModes.remove : modalModes.remove_mult }>
+							<Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Delete fontSize="inherit" /></Typography>
+							Delete
+						</MenuItem>
+				]
+			:
+				[	
+					<MenuItem key={modalModes.add_doc} onClick={handleClose} value={modalModes.add_doc}>
+						<Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Description fontSize="inherit" /></Typography>
+						Document
+					</MenuItem>,
+					<MenuItem key={modalModes.add_collection} onClick={handleClose} value={modalModes.add_collection}>
+						<Typography color="textSecondary" style={{ margin: '0 .5em 0 0', pointerEvents: 'none' }}><Folder fontSize="inherit" /></Typography>
+						Folder
+					</MenuItem>
+					
+				]
+			}
         </Menu>
     </>
 )

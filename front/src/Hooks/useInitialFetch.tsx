@@ -8,9 +8,7 @@ const useInitialFetch = () => {
     const [ state, execute ] = useServer(ACTION.get_all, undefined, false)
     
     useEffect(() => {
-        
         state.value && Object.assign(data, state.value)
-
     }, [state.value])
 
     if(initial.current) {
@@ -18,7 +16,10 @@ const useInitialFetch = () => {
         execute()
     } 
 
-    return state
+    return [ 
+		state,
+		execute
+	]
 }
 
 export default useInitialFetch

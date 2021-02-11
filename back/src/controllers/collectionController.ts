@@ -4,8 +4,10 @@ import docModel from "../models/docModel"
 
 const docController = {
     create: async (req: Request, res: Response) => {
+		const userId = res.locals.jwtPayload.userId
         const { docIds, ...subBody } = req.body
         let result = await collectionModel.create(
+			userId,
             docIds ? {
                 docs: await Promise.all(
                     docIds.map((docId) => docModel.get({ id: docId }))
@@ -32,7 +34,8 @@ const docController = {
                 docs: await Promise.all(
                     docIds.map((docId: string) => docModel.get({ id: docId }))
                 ) 
-            } : req.body)
+			} : req.body
+		)
 
         res.send(result)
     },

@@ -44,27 +44,32 @@ const Collection = ({
         <>
             <ListItem className={classes.accordion}>
                 <ListItemText primary={collection.title} />
-                <IconButton size="small" onClick={onClick}>{open ? <ExpandLess /> : <ExpandMore />}</IconButton>
+                { !!collection.docs?.length && 
+					<IconButton size="small" onClick={onClick}>{open ? <ExpandLess /> : <ExpandMore />}</IconButton> 
+				}
                 <MenuDocument envContext={context.collection} size="small" id={collection.id} />
             </ListItem>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                    { collection.docs.map((doc: Doc) =>
-                        <ListItemFile
-                            className={classes.nested}
-                            props={{
-                                file: doc,
-                                checked,
-                                handleCheck,
-                                setSelectedFile,
-                                secondary,
-                                content,
-                            }}
-                        />
-                    )}
-                    
-                </List>
-            </Collapse>
+            { !!collection.docs?.length && 
+				<Collapse in={open} timeout="auto" unmountOnExit>
+					<List component="div" disablePadding>
+						{ collection.docs.map((doc: Doc) =>
+							<ListItemFile
+								key={doc.id}
+								className={classes.nested}
+								props={{
+									file: doc,
+									checked,
+									handleCheck,
+									setSelectedFile,
+									secondary,
+									content,
+								}}
+							/>
+						)}
+						
+					</List>
+				</Collapse>
+			}
         </>
     )
 }

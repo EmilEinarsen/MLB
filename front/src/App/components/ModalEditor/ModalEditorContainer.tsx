@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { ACTION, fetchServer } from '../../../Hooks/useServer'
 import { contextEdit, modalModes } from '../../../Providers/EditProvider'
-import { removeDocImg } from '../../../Providers/serverData'
+import { deleteDocImg } from '../../../Providers/serverData'
 import ModalEditor from './ModalEditor'
 
 const ModalEditorContainer = () => {
@@ -15,11 +15,12 @@ const ModalEditorContainer = () => {
         },
         reset,
         id,
-        rerender
+		rerender,
+		appearance
     }: any = useContext(contextEdit)
 
     const 
-        visible = mode === modalModes.edit || mode === modalModes.add,
+        visible = mode === modalModes.edit || mode === modalModes.add_collection || mode === modalModes.add_doc,
         formRef = useRef<any>(),
         [ localImg, setLocalImg ] = useState<any>(file?.img ? [file.img] : []),
         [ selectedDocs, setSelectedDocs ] = useState<undefined | string[]>(undefined),
@@ -28,9 +29,9 @@ const ModalEditorContainer = () => {
             let 
                 changedFieldsValues = formRef.current.getFieldsValue('title'),
                 result: any = {}
-            Object.keys(changedFieldsValues).forEach((field: string) => changedFieldsValues[field] && (result[field] = changedFieldsValues[field]))
-            console.log(selectedDocs)
-            selectedDocs && collection && (result.docIds = selectedDocs)
+			Object.keys(changedFieldsValues).forEach((field: string) => changedFieldsValues[field] && (result[field] = changedFieldsValues[field]))
+			
+            ;(selectedDocs && (collection || mode === modalModes.add_collection)) && (result.docIds = selectedDocs)
 
             if(file) {
                 file.img && !localImg.length && handleImgRemove()
@@ -46,12 +47,12 @@ const ModalEditorContainer = () => {
             const fmData = new FormData()
             fmData.append('image', img)
             setLocalImg([img])
-            return await fetchServer({ dest: ACTION.IMG.create, options: { method: 'POST', body: fmData } })
+            return await fetchServer({ dest: ACTION.IMG.create, payload: fmData, options: { JSON: false } })
         },
         handleImgRemove = async () => 
-            (await fetchServer({ dest: ACTION.IMG.delete, payload: { id: file.img.uid, docId: id } }), removeDocImg(id), rerender()),
-        handleImgChange = (img: any) => img ? setLocalImg([img]) : setLocalImg([])
-
+            (await fetchServer({ dest: ACTION.IMG.delete, payload: { id: file.img.uid, docId: id } }), deleteDocImg(id), rerender()),
+		handleImgChange = (img: any) => img ? setLocalImg([img]) : setLocalImg([])
+	
     useEffect(() => setLocalImg(file?.img ? [file.img] : []), [mode, file])
 
     return (
@@ -66,7 +67,8 @@ const ModalEditorContainer = () => {
                 formRef,
                 handleSave,
                 handleImgChange,
-                setSelectedDocs
+				setSelectedDocs,
+				appearance
             }}
         /> : <></>
     )

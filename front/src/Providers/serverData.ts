@@ -14,12 +14,12 @@ declare global {
         id: string
         title: string
         docs: Doc[]
-    }
-}
-
-interface Data {
-    collections: Collection[],
-    docs: Doc[]
+	}
+	
+	interface Data {
+		collections: Collection[],
+		docs: Doc[]
+	}
 }
 
 const data: Data | any = {
@@ -27,15 +27,10 @@ const data: Data | any = {
     docs: []
 }
 
-
-
-export const addDoc = (doc: Doc) => data.docs.push(doc)
-
-export const updateDoc = (id: string, payload: object) => Object.assign(data.docs[data.docs.findIndex((doc: any) => doc.id === id)], payload)
-
-export const removeDoc = ({ id, ids }: { id?: string, ids?: string[] }) => data.docs = data.docs.filter((doc: Doc) => id ? doc.id !== id : ids ? !ids.includes(doc.id) : true)
-
-export const removeDocImg = (docId: string) => updateDoc(docId, { img: undefined })
+export const createData = (req: any, payload: any) => {
+	const target = data[requestToDataKey(req)]
+	target.push(payload)
+}
 
 export const updateData = (req: any, id: string, payload: any) => {
     const 
@@ -43,10 +38,36 @@ export const updateData = (req: any, id: string, payload: any) => {
         target = data[key].find((value: Collection | Doc) => value.id === id)
     
     Object.assign(target, payload)
-
     // Object assign doesn't overwrite nestedly. As a result, manuel assignment is sometimes needed
-    key === 'collections' && (target.docs = payload.docIds.map((id: string)=>data.docs.find((doc: Doc)=>doc.id===id)))
+    key === 'collections' && (
+		target.docs = payload.docIds.map((id: string) => data.docs.find((doc: Doc)=>doc.id===id))
+	)
 }
+
+export const deleteData = (req: any, { id, ids }: { id?: string, ids?: string[] }) => {
+	const
+		key = requestToDataKey(req),
+		target = data[key]
+
+	data[key] = target.filter(
+		(value: Collection | Doc) => id ? value.id !== id : ids ? !ids.includes(value.id) : true
+	)
+
+	// Delete doc from any collection
+	key === 'docs' && data.collections.forEach(
+		(collection: Collection) =>
+			id ?
+				collection.docs?.find((doc: Doc) => doc.id === id) && (
+					collection.docs = collection.docs.filter((doc: Doc) => doc.id !== id)
+				)
+			: 
+				ids?.forEach(id=>collection.docs?.find((doc: Doc) => doc.id === id) && (
+					collection.docs = collection.docs.filter((doc: Doc) => doc.id !== id)
+				))
+	)
+}
+
+export const deleteDocImg = (docId: string) => updateData(ACTION.DOC, docId, { img: undefined })
     
 
 const requestToDataKey = (req: any) => req === ACTION.DOC ? 'docs' : req === ACTION.COLLECTION ? 'collections' : ''

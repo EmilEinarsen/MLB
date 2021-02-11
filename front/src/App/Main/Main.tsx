@@ -13,7 +13,7 @@ interface Props {
 		pages: Page[]
 		files: Doc[]
 		selectedFile: string
-		isMounted: any
+		refMounted: any
 		reload: () => void
 	}
 }
@@ -25,7 +25,7 @@ const Main: React.FC<Props> = ({
 		pages,
 		files,
 		selectedFile,
-		isMounted,
+		refMounted,
 		reload
 	} 
 }) => (
@@ -34,10 +34,10 @@ const Main: React.FC<Props> = ({
 			<Box mb={4}>
 				<Grid container spacing={8}>
 					{ page === navigation.folder && 
-						<Folder props={{ files, selectedFile, isMounted, reload }} /> 
+						<Folder props={{ files, selectedFile, refMounted, reload }} /> 
 					}
 					{ page === navigation.selected && 
-						<Selected file={files.find(file=>file.id===selectedFile)} props={{isMounted}} /> 
+						<Selected file={files.find(file=>file.id===selectedFile)} props={{refMounted}} /> 
 					}
 				</Grid>
 			</Box>
