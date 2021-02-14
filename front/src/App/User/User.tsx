@@ -1,10 +1,13 @@
-import { Avatar, Box, Button, Card, CardActionArea, CardActions, CardContent, CardHeader, CardMedia, Divider, IconButton, Link, List, ListItem, ListItemSecondaryAction, ListItemText, makeStyles, Typography } from '@material-ui/core'
-import { ArrowBack, ExitToApp } from '@material-ui/icons'
 import React from 'react'
+import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Divider, IconButton, Link, List, ListItem, ListItemSecondaryAction, ListItemText, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import { ExitToApp } from '@material-ui/icons'
 
 interface Props {
 	logout: () => void
 	username: string
+	handleUsername?: () => void
+	handleEmail?: () => void
+	handlePassword?: () => void
 }
 
 const useStyle = makeStyles(theme => ({
@@ -33,7 +36,7 @@ const useStyle = makeStyles(theme => ({
 		placeContent: 'center',
 		padding: theme.spacing(6, 0, 0, 0)
 	},
-	secureLink: {
+	warningLink: {
 		color: '#ff9800'
 	},
 	disabledLink: {
@@ -41,7 +44,13 @@ const useStyle = makeStyles(theme => ({
 	}
 }))
 
-const User: React.FC<Props> = ({ logout,username }) => {
+const User: React.FC<Props> = ({ 
+	logout, 
+	username, 
+	handleUsername, 
+	handleEmail, 
+	handlePassword 
+}) => {
 	const classes = useStyle()
 
 	const disabledLink: { underline: 'none', component: 'button', disabled: boolean, className: string } = {
@@ -57,7 +66,11 @@ const User: React.FC<Props> = ({ logout,username }) => {
 				<CardHeader 
 					avatar={<Avatar className={classes.avatar} />}
 					title={<Typography variant="subtitle1">User</Typography>}
-					action={<IconButton onClick={logout}><ExitToApp /></IconButton>}
+					action={
+						<Tooltip title="Logout" aria-label="loguot">
+							<IconButton onClick={logout}><ExitToApp /></IconButton>
+						</Tooltip>
+					}
 				/>
 				
 				<CardMedia className={classes.name}>
@@ -72,7 +85,10 @@ const User: React.FC<Props> = ({ logout,username }) => {
 								Username
 							</ListItemText>
 							<ListItemSecondaryAction>
-								<Link {...disabledLink}>Update</Link>
+								{ handleUsername 
+									? <Link>Update</Link>
+									: <Link {...disabledLink}>Update</Link>
+								}
 							</ListItemSecondaryAction>
 						</ListItem>
 
@@ -82,7 +98,10 @@ const User: React.FC<Props> = ({ logout,username }) => {
 								Email
 							</ListItemText>
 							<ListItemSecondaryAction>
-								<Link {...disabledLink}>Change</Link>
+								{ handleEmail
+									? <Link className={classes.warningLink}>Change</Link>
+									: <Link {...disabledLink}>Change</Link>
+								}
 							</ListItemSecondaryAction>
 						</ListItem>
 
@@ -93,7 +112,10 @@ const User: React.FC<Props> = ({ logout,username }) => {
 							</ListItemText>
 							<ListItemSecondaryAction
 							>
-								<Link {...disabledLink}>Change</Link>
+								{ handlePassword
+									? <Link className={classes.warningLink}>Change</Link>
+									: <Link {...disabledLink}>Change</Link>
+								}
 							</ListItemSecondaryAction>
 						</ListItem>
 					</List>

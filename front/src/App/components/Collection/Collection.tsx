@@ -1,9 +1,19 @@
 import { Avatar, Collapse, createStyles, IconButton, List, ListItem, ListItemAvatar, ListItemText, makeStyles, Theme } from '@material-ui/core'
 import { ExpandLess, ExpandMore, Folder, FolderOpen } from '@material-ui/icons'
 import React from 'react'
-import ListItemFile from '../ListItemFile/ListItemFile'
+import ListItemFile from '../ListItemFile'
 import MenuDocument from '../MenuDocument'
 import { EMenuAppearance } from '../MenuDocument/MenuDocument'
+
+interface Props { 
+    collection: Collection
+    open: boolean
+    onClick: () => void
+	configuration: {
+		secondary: boolean
+        content: boolean
+	}
+}
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -16,30 +26,11 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 )
 
-const Collection = ({
+const Collection: React.FC<Props> = ({
     collection,
     open,
     onClick,
-    props: {
-        checked,
-        handleCheck,
-		selectedFile,
-        setSelectedFile,
-        secondary,
-        content
-    }
-}: { 
-    collection: Collection, 
-    open: boolean, 
-    onClick: () => void
-    props: {
-        checked: string[]
-        handleCheck: (value: string) => void
-		selectedFile: string
-		setSelectedFile: (value: string) => void
-        secondary: boolean
-        content: boolean
-    }
+	configuration
 }) => {
     const classes = useStyles()
 
@@ -64,15 +55,8 @@ const Collection = ({
 							<ListItemFile
 								key={doc.id}
 								className={classes.nested}
-								props={{
-									file: doc,
-									checked,
-									handleCheck,
-									selectedFile,
-									setSelectedFile,
-									secondary,
-									content,
-								}}
+								file={doc}
+								configuration={configuration}
 							/>
 						)}
 						

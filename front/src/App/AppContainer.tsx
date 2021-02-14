@@ -1,7 +1,7 @@
 import React from 'react'
+import App from './App'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
 import 'antd/dist/antd.css'
-import App from './App'
 
 interface Props {
 	refMounted: any

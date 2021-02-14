@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Card, Col, Form, Row, Space, Upload } from 'antd'
+import { Button, Col, Row, Upload } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { baseUrl } from '../../../Hooks/useServer'
 

@@ -1,5 +1,5 @@
-import { Form, Input, Modal, Select } from 'antd'
 import React from 'react'
+import { Form, Input, Modal, Select } from 'antd'
 import { EModal, EType, TMode } from '../../../Providers/EditProvider'
 import Uploader from './Uploader'
 import { CreateCollectionForm, CreateDocForm } from './CreateForms'

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { contextPage } from '../../../Providers/PageProvider'
+import { contextPage } from '../../Providers/PageProvider'
 import Navbar from './Navbar'
 
 const NavbarContainer: React.FC = () => {

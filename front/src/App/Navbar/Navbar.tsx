@@ -1,7 +1,6 @@
 import React from 'react'
 import { BottomNavigation, BottomNavigationAction } from '@material-ui/core'
-import './Navbar.sass'
-import { navigation } from '../../../Providers/PageProvider'
+import { navigation } from '../../Providers/PageProvider'
 
 export interface Props {
 	value: navigation,

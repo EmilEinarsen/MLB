@@ -1,5 +1,5 @@
+import React, { createContext, Dispatch, SetStateAction } from "react"
 import { Person, Description, Folder } from "@material-ui/icons"
-import React, { useState, createContext, Dispatch, SetStateAction } from "react"
 import { useStorage } from 'bjork_react-hookup'
 
 export enum navigation {

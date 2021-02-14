@@ -1,11 +1,10 @@
 import React from 'react'
-import Navbar from '../components/Navbar'
-import Folder from '../Folder'
-import { navigation } from '../../Providers/PageProvider'
 import { Grid, makeStyles } from '@material-ui/core'
-import './Main.sass'
+import Navbar from '../Navbar'
+import Folder from '../Folder'
 import Document from '../Document'
 import User from '../User'
+import { navigation } from '../../Providers/PageProvider'
 
 interface Props {
 	page: navigation

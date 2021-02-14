@@ -9,43 +9,17 @@ interface Props {
 		secondary: boolean,
 		content: boolean
 	}
-	props: { 
-		refMounted: any 
-	}
 }
 
 const ListContainer: React.FC<Props> = ({ 
 	list,
-	configuration,
-	props: {
-		refMounted
-	}
+	configuration
 }) => {
-	const {
-		collections,
-		hooks: {
-			check: { checked, addCheck, removeCheckByValue },
-			file: { selectedFile, setSelectedFile },
-		}
-	}: any = useContext(contextData)
-
-	const handleCheck = (id: string) =>
-		checked.includes(id)
-			? removeCheckByValue(id)
-			: addCheck(id)
+	const { collections }: any = useContext(contextData)
 
 	return (
 		<List 
-			configuration={configuration}
-			collections={collections}
-			list={list}
-			props={{
-				checked,
-				handleCheck,
-				selectedFile,
-				setSelectedFile,
-				refMounted
-			}}
+			{...{list, configuration, collections}}
 		/>
 	)
 }

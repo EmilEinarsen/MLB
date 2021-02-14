@@ -1,7 +1,6 @@
+import React from 'react'
 import { makeStyles } from '@material-ui/core'
 import Slider, { Mark as MuiMark } from '@material-ui/core/Slider'
-import React from 'react'
-import useMediaQuery from '../../../Hooks/useMediaQuery'
 
 export interface Mark extends MuiMark {  }
 

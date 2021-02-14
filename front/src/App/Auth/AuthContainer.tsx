@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { AUTHSTATE, contextAuth } from '../../Providers/AuthProvider'
+import { EAuthState, contextAuth } from '../../Providers/AuthProvider'
 import Auth from './Auth'
 
 const AuthContainer = () => {
@@ -13,7 +13,7 @@ const AuthContainer = () => {
 		removeError
 	}: any = useContext(contextAuth)
 
-	const toggleForm = () => setAuthState(authState === AUTHSTATE.login ? AUTHSTATE.register : AUTHSTATE.login)
+	const toggleForm = () => setAuthState(authState === EAuthState.login ? EAuthState.register : EAuthState.login)
 	
 	return <Auth
 		authState={authState}

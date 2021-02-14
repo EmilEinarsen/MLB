@@ -1,30 +1,27 @@
 import React from 'react'
-import { Hidden, Grid, Box, Fab, makeStyles } from '@material-ui/core'
-import List from '../components/List/ListContainer'
-import Document from '../Document/DocumentContainer'
-import './Folder.sass'
-import ListToolbar from '../components/ListToolbar/ListToolbarContainer'
-import AlphabeticalSlider from '../components/AlphabeticalSlider/AlphabeticalSliderContainer'
-import { group } from '../../Helpers/Helpers'
-import { Affix } from 'antd'
+import { Hidden, Grid, Fab, makeStyles, Tooltip } from '@material-ui/core'
 import { Add, LoopRounded } from '@material-ui/icons'
+import { Affix } from 'antd'
+import List from '../components/List'
+import Document from '../Document'
+import ListToolbar from '../components/ListToolbar'
+import AlphabeticalSlider from '../components/AlphabeticalSlider'
 import FabBox from '../components/FabBox/FabBoxContainer'
-import MenuDocument from '../components/MenuDocument/MenuDocumentContainer'
+import MenuDocument from '../components/MenuDocument'
+import { group } from '../../Helpers/Helpers'
 import { EMenuAppearance } from '../components/MenuDocument/MenuDocument'
 
 interface Props {
 	props: {
-		files: Doc[],
-		dense: boolean,
-		toggleDense: () => void,
-		secondary: boolean,
-		toggleSecondary: () => void,
+		files: Doc[]
+		dense: boolean
+		toggleDense: () => void
+		secondary: boolean
+		toggleSecondary: () => void
 		content: boolean,
-		toggleContent: () => void,
-		selectedFile: string,
-		listContainer: HTMLElement | null,
+		toggleContent: () => void
+		listContainer: HTMLElement | null
 		setListContainer: (instance: HTMLDivElement | null) => void
-		refMounted: any
 		reload: () => void
 	}
 }
@@ -69,10 +66,8 @@ const Folder: React.FC<Props> = ({
 		toggleSecondary,
 		content,
 		toggleContent,
-		selectedFile,
 		listContainer,
 		setListContainer,
-		refMounted,
 		reload
 	} 
 }) => {
@@ -104,7 +99,6 @@ const Folder: React.FC<Props> = ({
 										secondary, 
 										content
 									}}
-									props={{ refMounted }}
 								/>
 							</Grid>
 							<Grid item xs={1}>
@@ -116,7 +110,9 @@ const Folder: React.FC<Props> = ({
 					</Grid>
 				</Grid>
 				<FabBox>
-					<Fab onClick={reload} color="default" size="small"><LoopRounded /></Fab>
+					<Tooltip title="Refresh" aria-label="Refresh">
+						<Fab onClick={reload} color="default" size="small"><LoopRounded /></Fab>
+					</Tooltip>
 					<MenuDocument
 						transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
 						appearance={EMenuAppearance.add} 

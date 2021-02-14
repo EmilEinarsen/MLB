@@ -1,6 +1,6 @@
 import React from 'react'
-import Loader from 'react-loader-spinner'
 import useReduceMotion from '../Hooks/useReduceMotion'
+import Loader from 'react-loader-spinner'
 
 const bind = (reduceMotion:  boolean) => (
 	reduceMotion ? {

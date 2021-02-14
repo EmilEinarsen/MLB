@@ -1,8 +1,8 @@
 import React from 'react'
 import { List, Typography, Divider, Box, Button } from "@material-ui/core"
 import './List.sass'
-import CollectionContainer from '../Collection/CollectionContainer'
-import ListItemFile from '../ListItemFile/ListItemFile'
+import Collection from '../Collection'
+import ListItemFile from '../ListItemFile'
 import { Empty } from 'antd'
 import MenuDocument from '../MenuDocument'
 import { Add } from '@material-ui/icons'
@@ -16,53 +16,28 @@ interface Props {
 		secondary: boolean,
 		content: boolean
 	}
-	props: {
-		checked: string[],
-		handleCheck: (value: string) => void,
-		setSelectedFile: (value: string) => void,
-		selectedFile: string
-		refMounted: any
-	}
 }
 
 const _List: React.FC<Props> = ({
 	list,
 	collections,
-	configuration: {
-		dense,
-		secondary,
-		content
-	},
-	props: {
-		checked,
-		handleCheck,
-		selectedFile,
-		setSelectedFile,
-		refMounted
-	}
+	configuration
 }) => {
 	
 	return (
 		<>
 			{ collections.map((collection: Collection) => 
-				<CollectionContainer 
+				<Collection 
 					key={collection.id}
 					collection={collection}
-					props={{
-						checked,
-						handleCheck,
-						selectedFile,
-						setSelectedFile,
-						secondary,
-						content
-					}}
+					configuration={configuration}
 				/>)
 			}
 			{ Object.entries(list).length ?
 				<>
 					<Divider />
 					{ Object.entries(list).map(([key, files]) =>
-						<List dense={dense} key={key+'List'} id={'group-'+key.charCodeAt(0)}>
+						<List dense={configuration.dense} key={key+'List'} id={'group-'+key.charCodeAt(0)}>
 
 							<Box pl={2} >
 								<Typography
@@ -79,15 +54,8 @@ const _List: React.FC<Props> = ({
 							{ files.map(file =>
 								<ListItemFile 
 									key={file.id}
-									props={{
-										file,
-										checked,
-										handleCheck,
-										selectedFile,
-										setSelectedFile,
-										secondary,
-										content,
-									}}
+									file={file}
+									configuration={configuration}
 								/>
 							)}
 
@@ -108,8 +76,6 @@ const _List: React.FC<Props> = ({
 					</Empty>
 				</Box>
 			}
-
-			<div ref={refMounted}></div>
 		</>
 	)
 }

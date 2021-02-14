@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import React, { createContext, ReactNode, useContext, useState, useEffect } from "react"
+import React, { createContext, useContext, useState, useEffect } from "react"
 import serverData from './serverData'
 import useArray from 'bjork_react-hookup/core/useArray'
 import { contextPage, navigation } from "./PageProvider"
 import useMediaQuery from "../Hooks/useMediaQuery"
-import useServer, { ACTION, fetchServer } from "../Hooks/useServer"
+import { ACTION, fetchServer } from "../Hooks/useServer"
 import useAsync from "../Hooks/useAsync"
 import { useStorage } from 'bjork_react-hookup'
 
@@ -25,12 +25,12 @@ declare global {
 
 export const contextData = createContext<ContextData | undefined>(undefined)
 
-const FilesProvider = (
-	{ children }: { children: ReactNode }
-) => {
+const FilesProvider = ({ children }: any) => {
 	const { setPage } = useContext(contextPage)
+
 	const [ data, setData ] = useState<Data>(serverData)
 	const [ response, serverRequest, { reset: resetResponse } ] = useAsync(async () => await fetchServer({ dest: ACTION.get_all }), false)
+	const rerender = () => setData({ ...serverData })
 
 	const [ checked, , { 
 		add: addCheck,
@@ -38,13 +38,15 @@ const FilesProvider = (
 		clear: clearChecked
 	}] = useArray([])
 	
-	const [ selectedFile, setSelectedFile ] = useStorage('local', 'selectedFile')
-
-	const [ selectedCollection, setSelectedCollection ] = useState<string | undefined>()
-	
 	const matches = useMediaQuery({})
+	const [ selectedFile, setSelectedFile ] = useStorage('local', 'selectedFile')
+	const handleSetSelectedFile = (value: any) => {
+		setSelectedFile(value)
+		matches && setPage(navigation.selected)
+	}
+	
+	const [ selectedCollection, setSelectedCollection ] = useState<string | undefined>()
 
-	const rerender = () => setData({ ...serverData })
 
 	useEffect(() => {
 		if(response.pending) return
@@ -68,11 +70,7 @@ const FilesProvider = (
 				check: { checked, addCheck, removeCheckByValue, clearChecked },
 				file: { 
 					selectedFile, 
-					setSelectedFile: (value) => {
-						setSelectedFile(value)
-						
-						matches && setPage(navigation.selected)
-					}
+					setSelectedFile: handleSetSelectedFile
 				},
 				collection: {
 					selectedCollection, 

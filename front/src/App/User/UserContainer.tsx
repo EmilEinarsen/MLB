@@ -7,7 +7,17 @@ const UserContainer = () => {
 	const { logout }: any = useContext(contextAuth)
 	const { user: { username } }: any = useContext(contextData)
 
-	return <User {...{logout, username}} /> 
+	const handleEmail = () => {
+
+	}
+	const handleUsername = () => {
+
+	}
+	const handlePassword = () => {
+
+	}
+
+	return <User {...{logout, username, handleEmail: undefined, handleUsername: undefined, handlePassword: undefined}} /> 
 }
 
 export default UserContainer

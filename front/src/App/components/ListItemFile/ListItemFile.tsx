@@ -3,6 +3,20 @@ import { MusicNote, Image, Description, DescriptionTwoTone } from '@material-ui/
 import React from 'react'
 import { truncate } from '../../../Helpers/Helpers'
 
+interface Props {
+    className?: any
+	file: Doc
+	props: {
+		checked: string[]
+		handleCheck: (value: string) => void
+		selectedFile: string
+		setSelectedFile: (value: string) => void
+	}
+	configuration: {
+		secondary: boolean
+		content: boolean
+	}
+}
 
 const useStyles = makeStyles(theme => ({
 	chipContainer: {
@@ -12,28 +26,19 @@ const useStyles = makeStyles(theme => ({
 	}
 }))
 
-const ListItemFile = ({
+const ListItemFile: React.FC<Props> = ({
     className,
+	file,
 	props: {
-		file,
 		checked,
 		handleCheck,
 		selectedFile,
 		setSelectedFile,
+	},
+	configuration: {
 		secondary,
-		content,
+		content
 	}
-}: {
-    className?: any
-	props: {
-		file: Doc
-		checked: string[]
-		handleCheck: (value: string) => void
-		selectedFile: string
-		setSelectedFile: (value: string) => void
-		secondary: boolean
-		content: boolean
-	}  
 }) => {
 	const classes = useStyles()
 

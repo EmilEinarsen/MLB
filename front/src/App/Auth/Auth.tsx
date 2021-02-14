@@ -6,12 +6,12 @@ import './Auth.sass'
 import 'antd/dist/antd.css'
 import { Box, Card, Link, makeStyles } from '@material-ui/core'
 import GoogleLogin from 'react-google-login'
-import { AUTHSTATE } from '../../Providers/AuthProvider'
+import { EAuthState } from '../../Providers/AuthProvider'
 import LoadingScreen from '../LoadingScreen'
 import { FormInstance } from 'antd/lib/form'
 
 interface Props {
-	authState: AUTHSTATE
+	authState: EAuthState
 	toggleForm: () => void
 	handleFinish: (values: any) => void
 	submitState: any
@@ -56,16 +56,21 @@ const Auth: React.FC<Props> = ({
 		refForm.current && refForm.current.validateFields(Object.keys(customErrors))
 	}, [customErrors])
 
+	handleFinish = async (values: any) => {
+		console.log(await refForm.current?.validateFields())
+		handleFinish(values)
+	}
+
 	const formProps = { refForm, handleFinish, toggleForm, submitState, refMounted, customErrors, onValuesChange: handleValuesChanged }
 
-	return authState === AUTHSTATE.authorized ? <App refMounted={refMounted} />
-		: authState === AUTHSTATE.loading ? <LoadingScreen loading={refMounted} />
+	return authState === EAuthState.authorized ? <App refMounted={refMounted} />
+		: authState === EAuthState.loading ? <LoadingScreen loading={refMounted} />
 		:
 		<Box className={classes.root}>
 			<Card className={classes.card}>
-				{ authState === AUTHSTATE.login && <Login {...formProps} /> }
+				{ authState === EAuthState.login && <Login {...formProps} /> }
 				
-				{ authState === AUTHSTATE.register && <Register {...formProps} /> }
+				{ authState === EAuthState.register && <Register {...formProps} /> }
 			</Card>
 		</Box>
 }

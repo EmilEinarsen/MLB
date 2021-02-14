@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles, Card, CardHeader, CardContent, Box, CardMedia, Typography, Fab, CardActions } from '@material-ui/core'
 import { Empty } from 'antd'
-import MenuDocument from '../components/MenuDocument/MenuDocumentContainer'
+import MenuDocument from '../components/MenuDocument'
 import { Delete, Edit } from '@material-ui/icons'
 import FabBox from '../components/FabBox/FabBoxContainer'
 import { EMenuAppearance } from '../components/MenuDocument/MenuDocument'

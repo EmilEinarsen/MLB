@@ -60,7 +60,7 @@ const EditProvider = (
 		},
 		rerender
 	}: any = useContext(contextData)
-	const { unauthorize, checkAuthorization }: any = useContext(contextAuth)
+	const { checkAuthorization }: any = useContext(contextAuth)
 	
 	const [ mode, setMode ] = useState<TMode>(defaultMode)
 	const handleSetMode = ({modal, type, quantity}: TModeAlt) => 
@@ -97,7 +97,7 @@ const EditProvider = (
 			file?.id ?? collection?.id ?? undefined
 		: undefined
 	const ids = mode.type === EType.doc && mode.quantity === EQuantity.multiple ? checked : undefined
-	const submitedPayload = useRef<any>(undefined)
+	const submittedPayload = useRef<any>(undefined)
 	const fetchRequest = dest ? 
 		async (payload: any) => await fetchServer({ dest, payload })
 		: undefined
@@ -106,7 +106,7 @@ const EditProvider = (
 		submitState, submit, { reset: resetSubmitState } 
 	] = useAsync(fetchRequest ?? (async () => { throw Error('Undefined fetchRequest') }), false)
 	const saveToData = () => {
-		const payload = submitedPayload.current
+		const payload = submittedPayload.current
 		if(!payload) return
 		mode.modal === EModal.add && createData(request, submitState.value)
 		mode.modal === EModal.edit && updateData(request, payload.id, payload)
@@ -133,7 +133,7 @@ const EditProvider = (
 		}
 		
 		if(!Object.keys(payload).length) return
-		submitedPayload.current = payload
+		submittedPayload.current = payload
 		submit(payload)
 	}
 	const createMultiple = async (payload: any[]) => {
@@ -147,7 +147,7 @@ const EditProvider = (
 			}
 		}))
 		
-		submitedPayload.current = payload
+		submittedPayload.current = payload
 		submit(payload)
 	}
 
@@ -162,7 +162,7 @@ const EditProvider = (
 			message.success({ content: 'Successful!', key: 'submit' }),
 			saveToData(),
 			rerender(),
-			(submitedPayload.current = undefined),
+			(submittedPayload.current = undefined),
 			mode.modal === EModal.add && mode.type === EType.doc && setSelectedFile(submitState.value.id),
 			checkAuthorization(submitState),
 			resetSubmitState(),
@@ -237,24 +237,5 @@ function showDelete({ onCancel, onOk, names }: any) {
         onCancel: onCancel
     })
 }
-
-
-/* const addData = async ({ payload, rerender, request }: { payload: object, rerender: () => void, request: any }) => {
-	const res = await fetchServer({ dest: request.create, payload })
-	res && (createData(request, res), rerender())
-}
-
-const editData = async ({ id, payload, rerender, request }: { id: string, payload: any, rerender: () => void, request: any }) => {
-	let 
-		{ img, ...subPayload } = payload,
-		response = await fetchServer({
-			dest: request.update,
-			payload: img ? { id, ...subPayload, imgUid: img.uid } : { id, ...payload }
-		})
-	;response && (updateData(request, id, img ? { ...subPayload, img } : payload), rerender())
-}
-const removeData = async ({ id, ids, rerender, request }: { id?: string, ids?: string[], rerender: () => void, request: any }) => 
-	await fetchServer({ dest: request.delete, payload: { id, ids } })
-		&& (deleteData(request, { id, ids }), rerender()) */
 
 export default EditProvider

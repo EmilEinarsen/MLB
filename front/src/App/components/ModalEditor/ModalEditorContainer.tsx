@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { contextEdit, EModal, EQuantity, EType } from '../../../Providers/EditProvider'
+import { contextEdit, EModal, EType } from '../../../Providers/EditProvider'
 import ModalEditor from './ModalEditor'
 
 const formDataFile = (file: any, fmData = new FormData()) => (fmData.append('file', file), fmData)
 
-const handleFile = (orignalFile: any, array: any[], fieldValues: any, key: string) => {
-	orignalFile && (
-		orignalFile[key] && !array.length && (fieldValues[key+'Uid'] = orignalFile[key].uid),
+const handleFile = (originalFile: any, array: any[], fieldValues: any, key: string) => {
+	originalFile && (
+		originalFile[key] && !array.length && (fieldValues[key+'Uid'] = originalFile[key].uid),
 		(
-			(!orignalFile[key] && array.length)
-			|| (orignalFile[key] && array.length && orignalFile[key].uid !== array[0].uid)
+			(!originalFile[key] && array.length)
+			|| (originalFile[key] && array.length && originalFile[key].uid !== array[0].uid)
 		) && (fieldValues[key] = formDataFile(array[0]))
 	)
-	!orignalFile && array.length && (fieldValues[key] = formDataFile(array[0]))
+	!originalFile && array.length && (fieldValues[key] = formDataFile(array[0]))
 	return fieldValues
 }
 
@@ -34,8 +34,7 @@ const ModalEditorContainer = () => {
         mode: [ mode ],
 		submit,
 		submitState,
-		resetModal,
-		rerender
+		resetModal
     }: any = useContext(contextEdit)
 
 	const refForm = useRef<any>()
@@ -57,8 +56,6 @@ const ModalEditorContainer = () => {
 			} catch (error) {
 				return
 			}
-			/* const errors = await validateForm(refForm.current)
-			if(errors.length) return */
 
             const fieldValues = getChangedFieldsValue(refForm.current, mode.type === EType.doc ? file : collection)
 			
