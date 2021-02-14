@@ -5,8 +5,8 @@ build/
 tmp/
 temp/
 
-public/assets/audio/*
-!public/assets/audio/.keep
+audio/*
+!audio/.keep
 
-public/assets/image/*
-!public/assets/image/.keep
+image/*
+!image/.keep
