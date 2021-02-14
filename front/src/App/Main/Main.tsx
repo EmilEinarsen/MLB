@@ -1,49 +1,40 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
-import Folder from '../components/Folder'
+import Folder from '../Folder'
 import { navigation } from '../../Providers/PageProvider'
-import { Grid, Container, Box } from '@material-ui/core'
+import { Grid, Box, makeStyles } from '@material-ui/core'
 import './Main.sass'
-import Selected from '../components/Selected'
+import Document from '../Document'
 
 interface Props {
-	props: {
-		page: navigation
-		setPage: () => void
-		pages: Page[]
-		files: Doc[]
-		selectedFile: string
-		refMounted: any
-		reload: () => void
-	}
+	page: navigation
 }
 
-const Main: React.FC<Props> = ({ 
-	props: { 
-		page, 
-		setPage, 
-		pages,
-		files,
-		selectedFile,
-		refMounted,
-		reload
-	} 
-}) => (
-	<Box className="main-container">
-		<Container>
-			<Box mb={4}>
-				<Grid container spacing={8}>
-					{ page === navigation.folder && 
-						<Folder props={{ files, selectedFile, refMounted, reload }} /> 
-					}
-					{ page === navigation.selected && 
-						<Selected file={files.find(file=>file.id===selectedFile)} props={{refMounted}} /> 
-					}
-				</Grid>
-			</Box>
-		</Container>
-		<Navbar props={{ page, pages, setPage }} />
-	</Box>
-)
+const useStyles = makeStyles(theme => ({
+	root: {
+		height: '100vh'
+	}
+}))
+
+const Main: React.FC<Props> = ({ page }) => {
+	const classes = useStyles()
+
+	return (
+		<Grid className={classes.root}>
+			<div style={page === navigation.folder ? {} : {display: 'none'}}>
+				<Folder />
+			</div>
+			<div style={page === navigation.selected ? {} : {display: 'none'}}>
+				<Document />
+			</div>
+			{ page === navigation.user && 
+				<Box className="folder-document" >
+					<p>User</p>
+				</Box>
+			}
+			<Navbar />
+		</Grid>
+	)
+}
 
 export default Main

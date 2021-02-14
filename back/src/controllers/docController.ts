@@ -1,47 +1,66 @@
 import { Request, Response } from "express"
-import docModel from "../models/docModel"
-import imgModel from "../models/imgModel"
-import upload from "../utils/fileStorage"
+import Doc from "../entity/Doc"
+import File from "../entity/File"
 
-const docController = {
-    create: async (req: Request, res: Response) => {
+export default class DocController {
+    static async create(req: Request, res: Response | any) {
 		const userId = res.locals.jwtPayload.userId
+		
+        const result: any = !req.body.length 
+            ? await Doc.create(userId, req.body) 
+            : await Doc.createMult(userId, req.body)
+		
+		const error = result.status && result
 
-        let result = !req.body.length 
-            ? await docModel.create(userId, req.body) 
-            : await docModel.createMult(userId, req.body)
+		if(error) return res.status(error.status).send(error.message)
 
-        res.send(result)
-    },
+        res.sendWithToken(result)
+    }
 
-    get: async (req: Request, res: Response) => {
-        let result = await docModel.get(req.body)
+    static async get(req: Request, res: Response | any) {
+        let result: any = await Doc.getById(req.body.id)
 
-        res.send(result)
-    },
+		const error = result.status && result
 
-    update: async (req: Request, res: Response) => {
-        let img = req.body.imgUid && await imgModel.get({ id: req.body.imgUid })
-        console.log(img ? { ...req.body, img } : req.body)
-        let result = await docModel.update(img ? { ...req.body, img } : req.body)
+		if(error) return res.status(error.status).send(error.message)
 
-        res.send(result)
-    },
+        res.sendWithToken(result)
+    }
 
-    delete: async (req: Request, res: Response) => {
-        let result = 
-            req.body.id ? await docModel.delete(req.body) 
-            : req.body.ids ? await docModel.deleteMult(req.body)
-            : 'Invalid request'
+    static async update(req: Request, res: Response | any) {
+		const payload: any = await getPayload(req.body)
+		
+        const error = payload.status ? payload : await Doc.update(payload)
+		if(error) return res.status(error.status).send(error.message)
 
-        res.send(result)
-    },
+        res.status(201).sendWithToken()
+    }
 
-    getAll: async (req: Request, res: Response) => {
-        let result = await docModel.getAll()
+    static async delete(req: Request, res: Response | any) {
+		const { id, ids } = req.body
+		if(!id && !ids) res.status(404).send()
+
+        const error =
+            id ? await Doc.delete(id)
+            :  await Doc.deleteMult(ids)
+
+		if(error) return res.status(error.status).send(error.message)
+
+        res.status(201).sendWithToken()
+    }
+
+    static async getAll(req: Request, res: Response | any) {
+        let result = await Doc.getAll()
         
-        res.send(result)
+        res.sendWithToken(result)
     }
 }
 
-export default docController
+const getPayload = async (payload: any) => await checkFile('music', await checkFile('img', payload)) 
+
+const checkFile = async (key: string, payload) => {
+	const uid = payload[key+'Uid'] ?? payload[key]?.uid
+	const file: any = uid && await File.getById(uid)
+	
+	return file ? { ...payload, [key]: file } : payload
+}

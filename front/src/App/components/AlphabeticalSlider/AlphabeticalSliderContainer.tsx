@@ -20,11 +20,11 @@ const AlphabeticalSliderContainer: React.FC<Props> = ({ list }) => {
 	const marks = construct(list)
 	
 	const handleChange = (e: object, value: number | number[]): void => {
-		const key = marks.find(mark=>mark.value === value)?.label
+		const key: any = marks.find(mark=>mark.value === value)?.label
 		if(!key) return
 		scrollContainerChildIntoView({
 			container: document.querySelector(".list"), 
-			target: document.querySelector(`#group-${key}`), 
+			target: document.querySelector(`#group-${key.charCodeAt(0)}`), 
 			duration: 300,
 			options: { offsetY: -(document.querySelector(".list")?.clientHeight ?? 0)/4 }
 		})

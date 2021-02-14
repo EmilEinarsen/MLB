@@ -1,22 +1,13 @@
-import React from 'react'
-import { navigation } from '../../../Providers/PageProvider'
+import React, { useContext } from 'react'
+import { contextPage } from '../../../Providers/PageProvider'
 import Navbar from './Navbar'
 
-interface Props {
-	props: {
-		page: navigation,
-		setPage: () => void,
-		pages: Page[]
-	}
-}
-
-const NavbarContainer: React.FC<Props> = ({ 
-	props: { 
-		page, 
-		setPage, 
-		pages 
-	}
-}) => {
+const NavbarContainer: React.FC = () => {
+	const {
+		page,
+		setPage,
+		pages
+	}: any = useContext(contextPage)
 
 	return <Navbar props={{ pages, setPage }} value={page} />
 }

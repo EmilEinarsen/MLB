@@ -7,7 +7,7 @@ declare global {
 		subtitle?: string
 		text?: string
 		img?: any
-		music?: string
+		music?: any
     }
     
     interface  Collection {
@@ -27,10 +27,11 @@ const data: Data | any = {
     docs: []
 }
 
-export const createData = (req: any, payload: any) => {
-	const target = data[requestToDataKey(req)]
-	target.push(payload)
-}
+export const createData = (req: any, payload: any) =>
+	payload.length ?
+		data[requestToDataKey(req)].push(...payload) : 
+		data[requestToDataKey(req)].push(payload)
+
 
 export const updateData = (req: any, id: string, payload: any) => {
     const 
@@ -39,7 +40,7 @@ export const updateData = (req: any, id: string, payload: any) => {
     
     Object.assign(target, payload)
     // Object assign doesn't overwrite nestedly. As a result, manuel assignment is sometimes needed
-    key === 'collections' && (
+    key === 'collections' && payload.docIds && (
 		target.docs = payload.docIds.map((id: string) => data.docs.find((doc: Doc)=>doc.id===id))
 	)
 }
@@ -67,7 +68,7 @@ export const deleteData = (req: any, { id, ids }: { id?: string, ids?: string[] 
 	)
 }
 
-export const deleteDocImg = (docId: string) => updateData(ACTION.DOC, docId, { img: undefined })
+export const deleteDocFile = (docId: string, key: string) => updateData(ACTION.DOC, docId, { [key]: undefined })
     
 
 const requestToDataKey = (req: any) => req === ACTION.DOC ? 'docs' : req === ACTION.COLLECTION ? 'collections' : ''

@@ -1,11 +1,9 @@
 import { Request, Response } from "express"
 import config from "../config"
-import modal from "../models/modal"
 import path from 'path'
 import * as jwt from "jsonwebtoken"
-import { User } from "../entity/User"
+import User from "../entity/User"
 import { getRepository } from "typeorm"
-import { updateExpressionWithTypeArguments } from "typescript"
 
 class Controller {
 	
@@ -36,23 +34,21 @@ class Controller {
 		res.send({ token })
 	}
 
-	static async getAll(req: Request, res: Response) {
+	static async getAll(req: Request, res: Response | any) {
 		const userId = res.locals.jwtPayload.userId
+		
 		if(!userId) return res.status(401).send()
 
-		let user
-		try {
-			user = await User.getById(userId)
-		} catch (error) {
-			res.status(401).send()
-			return
-		}
-		console.log(user)
-        res.send(user)
+		const result: any = await User.getById(userId)
+		const error = result.status && result
+
+		if(error) return res.status(error.status).send(error.message)
+		
+        res.sendWithToken(result)
     }
 
-    static async getImg(req: Request, res: Response) {
-        res.sendFile(path.resolve('public/assets/'+req.params.name))
+    static async getFile(req: Request, res: Response) {
+        res.sendFile(path.resolve(`public/assets/${req.params.type}/${req.params.name}`))
     }
 
 }

@@ -1,56 +1,68 @@
 import { Request, Response } from "express"
-import collectionModel from "../models/CollectionModel"
-import docModel from "../models/docModel"
+import Collection from "../entity/Collection"
+import Doc from "../entity/Doc"
 
-const docController = {
-    create: async (req: Request, res: Response) => {
-		const userId = res.locals.jwtPayload.userId
-        const { docIds, ...subBody } = req.body
-        let result = await collectionModel.create(
-			userId,
-            docIds ? {
-                docs: await Promise.all(
-                    docIds.map((docId) => docModel.get({ id: docId }))
-                ),
-                ...subBody
-            } : req.body
-        )
+export default class CollectionController {
+	static async create(req: Request, res: Response | any) {
+		const 
+			userId = res.locals.jwtPayload.userId,
+			payload = req.body
+			
+		await replaceDocIdsWithDocs(payload)
 
-        res.send(result)
-    },
+		const result: any = !payload.length 
+            ? await Collection.create(userId, payload) 
+            : await Collection.createMult(userId, payload)
 
-    get: async (req: Request, res: Response) => {
-        let result = await collectionModel.get(req.body)
+		const error = result.status && result
+		if(error) return res.status(error.status).send(error.message)
 
-        res.send(result)
-    },
+        res.sendWithToken(result)
+    }
 
-    update: async (req: Request, res: Response) => {
-        const { docIds, ...subBody } = req.body
-        console.log(docIds ? { ...subBody, docs: docIds } : req.body)
-        let result = await collectionModel.update(
-            docIds ? { 
-                ...subBody, 
-                docs: await Promise.all(
-                    docIds.map((docId: string) => docModel.get({ id: docId }))
-                ) 
-			} : req.body
-		)
+    static async get(req: Request, res: Response | any) {
+        let result: any = await Collection.getById(req.body.id)
 
-        res.send(result)
-    },
+		const error = result.status && result
+		if(error) return res.status(error.status).send(error.message)
 
-    delete: async (req: Request, res: Response) => {
-        let result = await collectionModel.delete(req.body)
+        res.sendWithToken(result)
+    }
 
-        res.send(result)
-    },
+    static async update(req: Request, res: Response | any) {
+        const payload = req.body
 
-    getAll: async (req: Request, res: Response) => {
-        let result = await collectionModel.getAll()
+		await replaceDocIdsWithDocs(payload)
+		
+        const error = await Collection.update(payload)
+		if(error) return res.status(error.status).send(error.message)
+
+        res.sendWithToken()
+    }
+
+    static async delete(req: Request, res: Response | any) {
+        const error = await Collection.delete(req.body.id)
+		if(error) return res.status(error.status).send(error.message)
+
+        res.sendWithToken()
+    }
+
+    static async getAll(req: Request, res: Response | any) {
+        let result = await Collection.getAll()
         
-        res.send(result)
+        res.sendWithToken(result)
     }
 }
 
-export default docController
+const replaceDocIdsWithDocs = async (payload) => {
+	payload.length 
+		? await Promise.all(payload.map(part=>replace(part)))
+		: await replace(payload)
+}
+
+const replace = async (part) => part.docIds && (
+	part.docs = await Promise.all(
+		part.docIds.map((docId) => Doc.getById(docId))
+	),
+	delete part.docIds
+)

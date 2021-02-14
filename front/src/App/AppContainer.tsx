@@ -1,31 +1,15 @@
-import React, { useRef, useState } from 'react'
+import React from 'react'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
 import 'antd/dist/antd.css'
+import App from './App'
 
 interface Props {
 	refMounted: any
 }
 
-const AppContainer: React.FC<Props> = ({ refMounted }) => {
-	const initial = useRef(true)
-	const [ component, setComponent ] = useState<any>({ default: undefined })
-	const App = component.default
-
-	const handleResponse = async () => {
-		initial.current = false
-		
-		const response = await import('./App')
-		
-		setComponent({ default: response.default})
-	}
-
-	initial.current && handleResponse()
+const AppContainer: React.FC<Props> = (props) => {
 	
-	return(
-		<>
-			{ App && <App props={{ refMounted }} /> }
-		</>
-	)
+	return <App props={props} />
 }
 
 export default AppContainer

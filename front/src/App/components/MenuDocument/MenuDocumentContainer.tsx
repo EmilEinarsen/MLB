@@ -1,43 +1,43 @@
 import { PopoverOrigin } from '@material-ui/core/Popover'
 import React, { useContext, useState } from 'react'
+import { contextData } from '../../../Providers/DataProvider'
 import { contextEdit } from '../../../Providers/EditProvider'
-import MenuDocument, { context } from './MenuDocument'
-export { context } from './MenuDocument'
+import MenuDocument, { EMenuAppearance } from './MenuDocument'
 
 interface Props {
-    envContext: context
+    appearance: EMenuAppearance
     size?: 'small' | 'medium'
-	id?: string
 	altButton?: (onClick: any) => JSX.Element
 	transformOrigin?: PopoverOrigin
+	id?: string
 }
 
 const MenuDocumentContainer: React.FC<Props> = ({ 
-	envContext, 
-	size, 
-	id, 
+	appearance, 
+	size,
 	altButton,
-	transformOrigin
+	transformOrigin,
+	id
 }) => {
-    const { hooks: { modal: { setMode } }, handleSetCollection }: any = useContext(contextEdit)
+    const { mode: [ , setMode ] }: any = useContext(contextEdit)
+	const { hooks: { collection: { setSelectedCollection } } }: any = useContext(contextData)
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = (event: any) =>
         setAnchorEl(event.currentTarget)
-    }
   
-    const handleClose = (e: any) => {
-        setMode(e.target.value)
-        handleSetCollection(id)
-        setAnchorEl(null)
+    const handleClose = (value: any) => {
+        setMode(value)
+		id && setSelectedCollection(id)
+		setAnchorEl(null)
     }
    
     return <MenuDocument props={{
 		handleClose, 
 		handleClick, 
 		anchorEl, 
-		envContext, 
+		appearance, 
 		size, 
 		altButton, 
 		transformOrigin

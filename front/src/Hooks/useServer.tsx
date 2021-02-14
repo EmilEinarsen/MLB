@@ -2,7 +2,7 @@ import React from 'react'
 import useAsync from './useAsync'
 import cookie from 'bjork_cookie'
 
-const baseUrl = 'http://localhost:3000/'
+export const baseUrl = 'http://localhost:3000/'
 
 export const ACTION = {
     DOC: {
@@ -63,7 +63,9 @@ export const fetchServer = async ({ dest, payload, options }: { dest: string, pa
 		
 	if(!response.ok) throw response
 	try {
-		return await response.json()
+		const body = await response.json()
+		body.token && cookie.set('token', body.token)
+		return body.content ?? body
 	} catch (error) {
 		return response
 	}

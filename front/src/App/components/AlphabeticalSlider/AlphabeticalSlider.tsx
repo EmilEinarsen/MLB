@@ -10,11 +10,10 @@ interface Props {
 	handleChange: (e: object, value: number | number[]) => void
 }
 
-const useStyles = (matches: boolean) => (makeStyles(theme => ({
+const useStyles = makeStyles(theme => ({
 	root: {
-		height: '90vh',
-		position: 'fixed',
-		right: !matches ? `calc( 50vw - ${theme.spacing(5)}px )` : '0'
+		height: '50vh',
+		position: 'fixed'
 	},
 	markLabel: {
 		marginLeft: -theme.spacing(4)
@@ -28,32 +27,30 @@ const useStyles = (matches: boolean) => (makeStyles(theme => ({
 		width: 6,
 		margin: '0 -2.5px -2.5px -2.5px !important',
 	}
-})))()
+}))
 
 const AlphabeticalSlider: React.FC<Props> = ({
 	marks,
 	handleChange
 }) => {
-	const matches = useMediaQuery({})
-	
-	const {
-		root,
-		...rest
-	} = useStyles(matches)
+	const { root, ...slider} = useStyles()
 
 	return (
-		<div className={root}>
-			<Slider
-				orientation="vertical"
-				defaultValue={marks.length}
-				max={marks.length}
-				min={1}
-				marks={marks}
-				classes={rest}
-				track={false}
-				onChange={handleChange}
-			/>
-		</div>
+		marks.length ?
+			<div className={root}>
+				<Slider
+					key={'slider-'+marks.length}
+					orientation="vertical"
+					defaultValue={marks.length}
+					max={marks.length}
+					min={1}
+					marks={marks}
+					classes={slider}
+					track={false}
+					onChange={handleChange}
+				/>
+			</div>
+		: <></>
 	)
 }
 export default AlphabeticalSlider

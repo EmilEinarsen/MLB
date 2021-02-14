@@ -1,9 +1,9 @@
-import { Restore, Favorite, Description, Folder } from "@material-ui/icons"
+import { Person, Description, Folder } from "@material-ui/icons"
 import React, { useState, createContext, Dispatch, SetStateAction } from "react"
+import { useStorage } from 'bjork_react-hookup'
 
 export enum navigation {
-	'recent',
-	'favorite',
+	'user',
 	'selected',
 	'folder'
 }
@@ -23,10 +23,9 @@ declare global {
 }
 
 const pages: Page[] = [
-	{ label: 'Recent', value: navigation.recent, icon: <Restore /> },
-	{ label: 'Favorites', value: navigation.favorite, icon: <Favorite /> },
-	{ label: 'Selected', value: navigation.selected, icon: <Description /> },
-	{ label: 'Folder', value: navigation.folder, icon: <Folder /> }
+	{ label: 'Playlists', value: navigation.folder, icon: <Folder /> },
+	{ label: 'Song', value: navigation.selected, icon: <Description /> },
+	{ label: 'User', value: navigation.user, icon: <Person /> },
 ]
 
 const initialState = navigation.folder
@@ -38,11 +37,11 @@ export const contextPage = createContext<ContextPageData>({
 })
 
 const PageProvider = ({ children }: { children: React.ReactChild }) => {
-	const [ page, setPage ] = useState<navigation>(initialState)
+	const [ page, setPage ] = useStorage('local', 'page', initialState)
 	
 	return (
 		<contextPage.Provider value={{
-			page,
+			page: +page,
 			setPage,
 			pages
 		}}>

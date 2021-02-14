@@ -1,10 +1,12 @@
 import React from 'react'
-import { List, ListItem, ListItemText, Typography, Divider, Box, ListItemSecondaryAction, Checkbox } from "@material-ui/core"
-import { MusicNote, Description, Image } from '@material-ui/icons'
+import { List, Typography, Divider, Box, Button } from "@material-ui/core"
 import './List.sass'
-import { truncate } from '../../../Helpers'
 import CollectionContainer from '../Collection/CollectionContainer'
-import ListItemFile from '../ListItemFile.tsx/ListItemFile'
+import ListItemFile from '../ListItemFile/ListItemFile'
+import { Empty } from 'antd'
+import MenuDocument from '../MenuDocument'
+import { Add } from '@material-ui/icons'
+import { EMenuAppearance } from '../MenuDocument/MenuDocument'
 
 interface Props {
 	list: { [key: string]: Doc[] }
@@ -18,6 +20,7 @@ interface Props {
 		checked: string[],
 		handleCheck: (value: string) => void,
 		setSelectedFile: (value: string) => void,
+		selectedFile: string
 		refMounted: any
 	}
 }
@@ -33,13 +36,14 @@ const _List: React.FC<Props> = ({
 	props: {
 		checked,
 		handleCheck,
+		selectedFile,
 		setSelectedFile,
 		refMounted
 	}
 }) => {
 	
 	return (
-		<Box>
+		<>
 			{ collections.map((collection: Collection) => 
 				<CollectionContainer 
 					key={collection.id}
@@ -47,49 +51,66 @@ const _List: React.FC<Props> = ({
 					props={{
 						checked,
 						handleCheck,
+						selectedFile,
 						setSelectedFile,
 						secondary,
 						content
 					}}
 				/>)
 			}
-			
-			<Divider />
-
-			{ Object.entries(list).map(([key, files]) =>
-				<List dense={dense} key={key+'List'} id={'group-'+key}>
-
-					<Box pl={2} >
-						<Typography
-							color="textSecondary"
-							variant="caption"
-							display="block"
-						>
-							{key}
-						</Typography>
-					</Box>
-
+			{ Object.entries(list).length ?
+				<>
 					<Divider />
+					{ Object.entries(list).map(([key, files]) =>
+						<List dense={dense} key={key+'List'} id={'group-'+key.charCodeAt(0)}>
 
-					{ files.map(file =>
-						<ListItemFile 
-							key={file.id}
-							props={{
-								file,
-								checked,
-								handleCheck,
-								setSelectedFile,
-								secondary,
-								content,
-							}}
-						/>
+							<Box pl={2} >
+								<Typography
+									color="textSecondary"
+									variant="caption"
+									display="block"
+								>
+									{key}
+								</Typography>
+							</Box>
+
+							<Divider />
+
+							{ files.map(file =>
+								<ListItemFile 
+									key={file.id}
+									props={{
+										file,
+										checked,
+										handleCheck,
+										selectedFile,
+										setSelectedFile,
+										secondary,
+										content,
+									}}
+								/>
+							)}
+
+						</List>
 					)}
-
-				</List>
-			)}
+				</>
+			: 
+				<Box style={{ display: 'grid', placeContent: 'center', height: '80%' }}>
+					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<p>No songs</p>}>
+						<MenuDocument 
+							altButton={(onClick) =>
+								<Button onClick={onClick} variant="contained" color="primary" size="large">
+									<Add />
+								</Button>
+							} 
+							appearance={EMenuAppearance.add}
+						/>
+					</Empty>
+				</Box>
+			}
 
 			<div ref={refMounted}></div>
-		</Box>
+		</>
 	)
 }
 

@@ -1,8 +1,8 @@
-import { AppBar, Button, FormControlLabel, IconButton, makeStyles, Switch, Toolbar } from '@material-ui/core'
-import { MoreVert } from '@material-ui/icons'
+import { AppBar, Button, FormControlLabel, makeStyles, Switch, Toolbar } from '@material-ui/core'
 import { Drawer } from 'antd'
 import React from 'react'
-import MenuDocument, { context } from '../MenuDocument'
+import MenuDocument from '../MenuDocument'
+import { EMenuAppearance } from '../MenuDocument/MenuDocument'
 
 interface Props {
 	props: {
@@ -54,7 +54,7 @@ const ListToolbar: React.FC<Props> = ({
 							Appearance
 						</Button>
 						<div style={{ justifySelf: 'end' }}>
-							<MenuDocument envContext={context.list} />
+							<MenuDocument appearance={EMenuAppearance.list} />
 						</div>
 					</Toolbar>
 				</AppBar>

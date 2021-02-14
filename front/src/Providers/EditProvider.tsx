@@ -1,41 +1,48 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
-import { Modal } from 'antd'
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { message, Modal } from 'antd'
 import { contextData } from './DataProvider'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import ModalEditor from '../App/components/ModalEditor'
-import { ACTION } from '../Hooks/useServer'
-import { APPEARANCE } from '../App/components/ModalEditor/ModalEditor'
+import { ACTION, fetchServer } from '../Hooks/useServer'
+import useAsync from '../Hooks/useAsync'
+import { createData, deleteData, deleteDocFile, updateData } from './serverData'
+import { contextAuth } from './AuthProvider'
 
-export enum modalModes {
-	'add_collection',
-	'add_doc',
+export enum EModal {
+	'add',
 	'edit',
     'remove',
-    'remove_mult',
     'none'
 }
 
+export enum EType {
+	'doc',
+	'collection',
+	'none'
+}
+
+export enum EQuantity {
+	'single',
+	'multiple',
+	'none'
+}
+
+export type TMode = { modal: EModal, type: EType, quantity: EQuantity }
+export type TModeAlt = { modal?: EModal, type?: EType, quantity?: EQuantity }
+
+const defaultMode = { modal: EModal.none, type: EType.none, quantity: EQuantity.none }
+
 interface ContextEdit {
     file?: Doc
-    files?: Doc[]
+	files: Doc[]
     collection?: Collection
-    hooks: {
-        modal: {
-            mode: modalModes, 
-            setMode: React.Dispatch<React.SetStateAction<modalModes>>
-        },
-        update: {
-            update: modalModes, 
-            setUpdate: React.Dispatch<React.SetStateAction<modalModes>>
-        }
-    }
-    handleSetCollection: (id: string) => void
-    change: ({ type, id, payload }: { type: modalModes, id: string, payload: object }) => void
-    reset: () => void
-    id: string
-    reload: () => void
+	collections: Collection[]
+	mode: [ TMode, (arg0: TModeAlt) => void]
+	submit: (payload: any) => void
+	submitState: any
+	resetModal: () => void
 	rerender: () => void
-	appearance: APPEARANCE
 }
 
 export const contextEdit = createContext<ContextEdit | undefined>(undefined)
@@ -43,72 +50,145 @@ export const contextEdit = createContext<ContextEdit | undefined>(undefined)
 const EditProvider = (
     { children }: { children: ReactNode }
 ) => {
-    const 
-        {
-            files,
-            collections,
-            hooks: {
-                check: { checked },
-                file: { selectedFile } 
-            },
-            change,
-            reload,
-            rerender
-        }: any = useContext(contextData),
-        [ mode, setMode ] = useState<modalModes>(modalModes.none),
-        [ update, setUpdate ] = useState<any>({}),
-        reset = () => setMode(modalModes.none),
-        file = (mode === modalModes.edit || mode === modalModes.remove || mode === modalModes.remove_mult) ? files.find((file: Doc) => file.id === selectedFile) : undefined,
-        [ collection, setCollection ] = useState<Collection | undefined>(undefined),
-		request = 
-			mode === modalModes.add_collection ? ACTION.COLLECTION 
-				: mode === modalModes.add_doc ? ACTION.DOC 
-				: mode === modalModes.remove_mult ? ACTION.DOC
-				: collection ? ACTION.COLLECTION
-				: file ? ACTION.DOC
-				: undefined
-		,
-        id = collection ? collection.id : selectedFile ? selectedFile : undefined,
-		handleSetCollection = (id: string) => setCollection(id ? collections.find((collection: Collection) => collection.id === id) : undefined),
-		appearance = 
-			mode === modalModes.edit ? 
-				collection ? APPEARANCE.collection : file ? APPEARANCE.file : APPEARANCE.none
-			: 
-				mode === modalModes.add_collection ? APPEARANCE.collection : mode === modalModes.add_doc ? APPEARANCE.file : APPEARANCE.none
+    const {
+		files,
+		collections,
+		hooks: {
+			check: { checked, clearChecked },
+			file: { selectedFile, setSelectedFile },
+			collection: { selectedCollection }
+		},
+		rerender
+	}: any = useContext(contextData)
+	const { unauthorize, checkAuthorization }: any = useContext(contextAuth)
+	
+	const [ mode, setMode ] = useState<TMode>(defaultMode)
+	const handleSetMode = ({modal, type, quantity}: TModeAlt) => 
+		setMode((mode) => ({ modal: modal ?? mode.modal, type: type ?? mode.type, quantity: quantity ?? mode.quantity }))
+	const resetModal = () => setMode({ ...defaultMode })
+	
+	const file: Doc | undefined = 
+		mode.type === EType.doc && mode.quantity === EQuantity.single && mode.modal !== EModal.add
+			? files.find((file: Doc) => file.id === selectedFile) : undefined
+	const collection: Collection | undefined = 
+		mode.type === EType.collection && mode.quantity === EQuantity.single && mode.modal !== EModal.add
+			? collections.find((collection: Collection) => collection.id === selectedCollection) : undefined
+	const names: string[] | undefined = 
+		file ? [file.title] 
+		: collection ? [collection.title] 
+		: mode.quantity === EQuantity.multiple ? ((array = []) => ( 
+			array = files.filter((doc: Doc) => checked.includes(doc.id)).map((doc: Doc) => doc.title),
+			array.length ? array : undefined 
+		))()
+		: undefined
 
-    useEffect(() => {
-       	mode === modalModes.remove && showDelete({ 
-            change: () => (change({ type: modalModes.remove, id, request }), reset()), 
-            reset, fileNames: file ? [ file.title ] : undefined, collectionName: collection?.title
-        })
-        checked.length && mode === modalModes.remove_mult && showDelete({ 
-            change: () => (change({ type: modalModes.remove, ids: checked, request }), reset()),
-            reset, fileNames: files.filter((doc: Doc) => checked.includes(doc.id)).map((doc: Doc) => doc.title)
-        })
-    }, [ mode ])
 
-    useEffect(() => {
-		if(mode !== modalModes.edit && mode !== modalModes.add_collection && mode !== modalModes.add_doc) return
-        change({ type: mode, id, payload: update, request })
-        reset()
-    }, [ update ])
+	const request = mode.type === EType.doc ? ACTION.DOC
+		: mode.type === EType.collection ? ACTION.COLLECTION 
+		: undefined
+	const dest = 
+		request ?
+			mode.modal === EModal.add ? request.create
+			: mode.modal === EModal.edit ? request.update
+			: mode.modal === EModal.remove ? request.delete
+			: undefined
+		: undefined
+	const id = mode.modal !== EModal.add ?
+			file?.id ?? collection?.id ?? undefined
+		: undefined
+	const ids = mode.type === EType.doc && mode.quantity === EQuantity.multiple ? checked : undefined
+	const submitedPayload = useRef<any>(undefined)
+	const fetchRequest = dest ? 
+		async (payload: any) => await fetchServer({ dest, payload })
+		: undefined
+
+	const [ 
+		submitState, submit, { reset: resetSubmitState } 
+	] = useAsync(fetchRequest ?? (async () => { throw Error('Undefined fetchRequest') }), false)
+	const saveToData = () => {
+		const payload = submitedPayload.current
+		if(!payload) return
+		mode.modal === EModal.add && createData(request, submitState.value)
+		mode.modal === EModal.edit && updateData(request, payload.id, payload)
+		mode.modal === EModal.remove && deleteData(request, {id, ids})
+	}
+	const handleSubmit = async (payload: any = {}) => {
+		if(mode.quantity === EQuantity.multiple && mode.modal === EModal.add) {
+			createMultiple(payload)
+			return
+		}
+		if(!Object.keys(payload).length && mode.modal !== EModal.remove) return
+		if(mode.modal === EModal.edit) {
+			const object: any = file ?? collection
+			Object.keys(payload).forEach((key) => (object)[key] === payload[key] && (delete payload[key]))
+		}
+		if(!Object.keys(payload).length && mode.modal !== EModal.remove) return
+
+		id && (payload.id = id)
+		ids && (payload.ids = ids)
+		
+		if(mode.type === EType.doc) {
+			await handleFile(payload, 'img', checkAuthorization)
+			await handleFile(payload, 'music', checkAuthorization)
+		}
+		
+		if(!Object.keys(payload).length) return
+		submitedPayload.current = payload
+		submit(payload)
+	}
+	const createMultiple = async (payload: any[]) => {
+		payload = await Promise.all(payload.map(async ({ img, music, ...rest }) => {
+			try {
+				img && (rest.img = await uploadFile(img, checkAuthorization))
+				music && (rest.music = await uploadFile(music, checkAuthorization))
+				return rest
+			} catch (error) {
+				return rest
+			}
+		}))
+		
+		submitedPayload.current = payload
+		submit(payload)
+	}
+
+	useEffect(() => {
+		mode.modal === EModal.remove && names &&
+			showDelete({ onOk: () => handleSubmit(), onCancel: resetModal, names })
+	}, [mode])
+
+	useEffect(() => {
+		submitState.pending && message.loading({ content: 'Pending...', key: 'submit' })
+		submitState.value && (
+			message.success({ content: 'Successful!', key: 'submit' }),
+			saveToData(),
+			rerender(),
+			(submitedPayload.current = undefined),
+			mode.modal === EModal.add && mode.type === EType.doc && setSelectedFile(submitState.value.id),
+			checkAuthorization(submitState),
+			resetSubmitState(),
+			mode.modal !== EModal.edit && resetModal(),
+			mode.quantity === EQuantity.multiple && clearChecked()
+		)
+		submitState.error && (
+			//(async () => addError(await registerState.error.json()))(),
+			message.error({ content: 'Error!', key: 'submit' }),
+			mode.modal === EModal.remove && resetModal(),
+			checkAuthorization(submitState),
+			resetSubmitState()
+		)
+	}, [ submitState ])
 
     return (
         <contextEdit.Provider value={{
-            file,
-            files,
-            collection,
-            hooks: { 
-                modal: { mode, setMode },
-				update: { update, setUpdate }
-            },
-            handleSetCollection,
-            change,
-            reset,
-            id: selectedFile,
-            reload,
-			rerender,
-			appearance
+			file,
+			files,
+			collection,
+			collections,
+			mode: [ mode, handleSetMode ],
+			submit: handleSubmit,
+			submitState,
+			resetModal,
+			rerender
         }}>
             { children }
             <ModalEditor />
@@ -116,29 +196,65 @@ const EditProvider = (
     )
 }
 
-function showDelete({ reset, change, fileNames, collectionName }: any) {
+const uploadFile = async (fmData: any, checkAuthorization: (response: any) => any) => 
+	checkAuthorization(await fetchServer({ dest: ACTION.IMG.create, payload: fmData, options: { JSON: false } }))
+const removeFile = async (payload: { id: string, docId: string }, checkAuthorization: (response: any) => any) => 
+	checkAuthorization(await fetchServer({ dest: ACTION.IMG.delete, payload }))
+
+const handleFile = async (payload: any, key: string, checkAuthorization: (response: any) => any) => {
+	try {
+		payload[key] && (
+			payload[key] = await uploadFile(payload[key], checkAuthorization)
+		)
+		payload[key+'Uid'] && (
+			await removeFile({ id: payload[key+'Uid'], docId: payload.id }, checkAuthorization),
+			deleteDocFile(payload.id, key),
+			payload[key+'Uid'] && (delete payload[key+'Uid'])
+		)
+	} catch (error) {
+		payload[key] && (delete payload[key])
+		payload[key+'Uid'] && (delete payload[key+'Uid'])
+	}
+}
+
+function showDelete({ onCancel, onOk, names }: any) {
     Modal.confirm({
 		title: 
-			fileNames ? 
-				fileNames.length > 1
-					? `Are you sure you want to delete these files?` 
-					: 'Are you sure you want to delete this file?'
-			: `Are you sure you want to delete this folder?`
+			names.length > 1
+				? `Are you sure you want to delete these?` 
+				: 'Are you sure you want to delete this?'
         ,
 		content: 
-			fileNames ? 
-				fileNames.length > 1
-					? fileNames.map((title: string, index: number) => title+(index < fileNames.length-1 ? ', ' : '')) 
-					: fileNames[0]
-			: collectionName
+			names.length > 1
+				? names.map((title: string, index: number) => title+(index < names.length-1 ? ', ' : '')) 
+				: names[0]
 		,
         icon: <ExclamationCircleOutlined />,
         okText: 'Yes',
         okType: 'danger',
         cancelText: 'No',
-        onOk: change,
-        onCancel: reset
+        onOk: onOk,
+        onCancel: onCancel
     })
 }
+
+
+/* const addData = async ({ payload, rerender, request }: { payload: object, rerender: () => void, request: any }) => {
+	const res = await fetchServer({ dest: request.create, payload })
+	res && (createData(request, res), rerender())
+}
+
+const editData = async ({ id, payload, rerender, request }: { id: string, payload: any, rerender: () => void, request: any }) => {
+	let 
+		{ img, ...subPayload } = payload,
+		response = await fetchServer({
+			dest: request.update,
+			payload: img ? { id, ...subPayload, imgUid: img.uid } : { id, ...payload }
+		})
+	;response && (updateData(request, id, img ? { ...subPayload, img } : payload), rerender())
+}
+const removeData = async ({ id, ids, rerender, request }: { id?: string, ids?: string[], rerender: () => void, request: any }) => 
+	await fetchServer({ dest: request.delete, payload: { id, ids } })
+		&& (deleteData(request, { id, ids }), rerender()) */
 
 export default EditProvider

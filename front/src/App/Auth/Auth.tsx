@@ -91,7 +91,6 @@ const Login: React.FC<{
 		form={form}
 		name="normal_login"
 		className="form"
-		initialValues={{ remember: true }}
 		onFinish={handleFinish}
 		ref={refMounted}
 	>
@@ -134,6 +133,7 @@ const Login: React.FC<{
 				onSuccess={responseGoogle}
 				onFailure={responseGoogle}
 				cookiePolicy={'single_host_origin'}
+				disabled
 			/>
 		</Form.Item>
 	</Form>

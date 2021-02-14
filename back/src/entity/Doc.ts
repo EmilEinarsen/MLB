@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, ManyToOne, getRepository } from "typeorm"
-import imgModel from "../models/imgModel"
 import { clean, resObj } from "../utils"
-import Image from "./Image"
-import { User } from "./User"
+import File from "./File"
+import User from "./User"
 
 export const KEYS = {
     title: 'title',
@@ -27,11 +26,11 @@ export default class Doc {
 	@Column({ nullable: true, type: 'text' }) 
 	text: string
 
-	@OneToOne(() => Image, { onDelete: 'SET NULL' }) @JoinColumn() 
-	img: Image
+	@OneToOne(() => File, { onDelete: 'SET NULL' }) @JoinColumn() 
+	img: File
 
-	@Column({ nullable: true }) 
-	music: string
+	@OneToOne(() => File, { onDelete: 'SET NULL' }) @JoinColumn()
+	music: File
 
 	@ManyToOne(() => User, user => user.docs)
 	user: User
@@ -39,41 +38,36 @@ export default class Doc {
 
 
 	static async getById(id) {
-		return await getRepository(this).findOneOrFail(id, { relations: ["img"] })
+		try {
+			return await getRepository(this).findOneOrFail(id, { relations: ["img", "music"] })
+		} catch (error) {
+			return { status: 404, message: 'Doc not found' }
+		}
 	}
 
 	static async create(userId, payload) {
-		const 
-			docRepository = getRepository(this),
-			userRepository = getRepository(User)
+		const docRepository = getRepository(this)
 		
-		let user
-		try {
-			user = await userRepository.findOneOrFail(userId)
-		} catch (errors) {
-			return resObj({ status: 404, message: 'Request failed' })
-		}
+		const user: any = await User.getByIdDangerously(userId)
+		if(user.status) return user
 
 		let doc = docRepository.create({ ...clean(payload, KEYS), user })
 
 		try {
-			docRepository.save(doc)
+			return await docRepository.save(doc)
 		} catch (error) {
-			return resObj({ status: 404, message: 'Request failed' })
+			return { status: 404, message: 'Request failed' }
 		}
 	}
 
     static async update(payload) {
 		const docRepository = getRepository(this)
 		
-		let doc: Doc
-		try {
-			doc = await docRepository.findOneOrFail(payload.id)
-		} catch (error) {
-			return resObj({ status: 404, message: 'Request failed' })
-		}
+		const doc: any = await this.getById(payload.id)
+		if(doc.status) return doc
 		
-		payload.img && doc.img && await imgModel.delete({ img: doc.img })
+		payload.img && doc.img && await File.delete({ file: doc.img })
+		payload.music && doc.music && await File.delete({ file: doc.music })
 		
 		try {
 			await docRepository.update(doc, payload)
@@ -85,50 +79,41 @@ export default class Doc {
 	static async delete(id) {
 		const docRepository = getRepository(this)
 
-		/* try {
-			await Doc.getById(id)
-		} catch (error) {
-			return resObj({ status: 404, message: 'Doc not found' })
-		} */
+		const doc: any = await this.getById(id)
+		if(doc.status) return doc
 
+		doc.img && await File.delete({ file: doc.img })
+		doc.music && await File.delete({ file: doc.music })
+		
 		try {
-			await docRepository.delete(id)
+			await docRepository.delete(doc)
 		} catch (error) {
 			return { status: 404, message: 'Failed to delete' }
 		}
 	}
 
 	static async getAll() {
-		return await getRepository(this).find({ relations: ["img"] })
+		return await getRepository(this).find({ relations: ["img", "music"] })
 	}
 
 	static async createMult(userId, payload) {
-		const 
-			docRepository = getRepository(this),
-			userRepository = getRepository(User)
+		const docRepository = getRepository(this)
 
-		let user
-		try {
-			user = await userRepository.findOneOrFail(userId)
-		} catch (errors) {
-			return resObj({ status: 404, message: 'Request failed' })
-		}
+		const user: any = await User.getByIdWithoutRelations(userId)
+		if(user.status) return user
 
 		try {
-			docRepository.save(payload.map(doc => docRepository.create({ ...clean(doc, KEYS), user })))
+			return await docRepository.save(
+				payload.map(doc => docRepository.create({ ...clean(doc, KEYS), user }))
+			)
 		} catch (error) {
 			return resObj({ status: 404, message: 'Request failed' })
 		}
 	}
 
 	static async deleteMult(ids) {
-		const 
-			docRepository = getRepository(this)
-
-		try {
-			await docRepository.delete(ids)
-		} catch (error) {
-			return { status: 404, message: 'Failed to delete' }
-		}
+		const errors = (await Promise.all(ids.map(id => this.delete(id)))).filter(error=>error)
+		
+		console.log(errors.length, errors)
 	}
 }

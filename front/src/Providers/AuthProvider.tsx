@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { createContext, useEffect, useRef, useState } from 'react'
 import useServer, { ACTION } from '../Hooks/useServer'
-import { useStorage, useObject } from 'bjork_react-hookup'
+import { useObject } from 'bjork_react-hookup'
 import useInitialFetch from '../Hooks/useInitialFetch'
 import { message } from 'antd'
 import cookie from 'bjork_cookie'
@@ -14,6 +14,8 @@ interface ContextAuth {
 	submitState: { pending: boolean, value: any, error: any }
 	customErrors: any
 	removeError: any
+	unauthorize: () => void
+	checkAuthorization: (response: any) => any
 }
 
 export enum AUTHSTATE {
@@ -26,12 +28,13 @@ export enum AUTHSTATE {
 export const contextAuth = createContext<ContextAuth | undefined>(undefined)
 
 const AuthProvider: React.FC = ({ children }) => {
-	const [ initialFetch, reInitialFetch ] = useInitialFetch()
 	const [ loginState, executeLogin ] = useServer(ACTION.login, undefined, false)
 	const [ registerState, executeRegister ] = useServer(ACTION.USER.create, undefined, false)
 	const [ authState, setAuthState ] = useState<AUTHSTATE>(AUTHSTATE.loading)
 	const refMounted = useRef()
 	const [ customErrors, , { add: addError, removeByKey: removeError } ] = useObject({})
+	const unauthorize = () => setAuthState(AUTHSTATE.login)
+	const [ initialFetch, reInitialFetch ] = useInitialFetch()
 	
 	useEffect(() => {
 		if(authState === AUTHSTATE.authorized || !registerState) return
@@ -51,7 +54,6 @@ const AuthProvider: React.FC = ({ children }) => {
 		loginState?.value && (
 			async () => (
 				setAuthState(AUTHSTATE.loading),
-				cookie.set('token', loginState.value.token),
 				reInitialFetch()
 			)
 		)()
@@ -66,16 +68,23 @@ const AuthProvider: React.FC = ({ children }) => {
 	useEffect(() => {
 		authState === AUTHSTATE.loading && (refMounted.current = undefined)
 	}, [authState])
+
+	const checkAuthorization = async (response: any) => {
+		response?.error?.status === 401 && unauthorize()
+		return response
+	}
 	
 	return (
 		<contextAuth.Provider value={{
 			authState,
 			setAuthState,
 			refMounted,
-			submit: (values) => (authState === AUTHSTATE.login ? executeLogin(values) : executeRegister(values), false),
+			submit: (values: any) => (authState === AUTHSTATE.login ? executeLogin(values) : executeRegister(values), false),
 			submitState: authState === AUTHSTATE.login ? loginState : registerState,
 			customErrors,
-			removeError
+			removeError,
+			unauthorize,
+			checkAuthorization
 		}}>
 			{children}
 		</contextAuth.Provider>

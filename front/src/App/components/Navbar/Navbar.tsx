@@ -18,7 +18,11 @@ const Navbar: React.FC<Props> = ({
 		pages 
 	}
 }) => (
-	<BottomNavigation value={value} onChange={(e: object, value: navigation) => setPage(value)} className="navbar">
+	<BottomNavigation 
+		value={value} 
+		onChange={(e: object, value: navigation) => setPage(value)}
+		style={{ position: 'absolute', bottom: 0, width: '100vw' }}
+	>
 		{ pages.map(page => <BottomNavigationAction key={page.value} { ...page } /> )}
 	</BottomNavigation>
 )

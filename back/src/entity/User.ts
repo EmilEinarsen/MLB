@@ -7,7 +7,7 @@ import Collection from "./Collection"
 
 @Entity()
 @Unique(["email"])
-export class User {
+export default class User {
 
 	@PrimaryGeneratedColumn('uuid') 
 	id: string
@@ -45,10 +45,34 @@ export class User {
 	}
 
 	static async getById(id) {
-		return await getRepository(this).findOneOrFail(id, {
-			select: ["id", "username", "email"],
-			relations: ["docs", "collections"]
-		})
+		try {
+			return await getRepository(this).findOneOrFail(id, {
+				select: ["id", "username", "email"],
+				relations: ["docs", "docs.img", "docs.music", "collections", "collections.docs"]
+			})
+		} catch (error) {
+			return { status: 404, message: 'User not found' }
+		}
+	}
+
+	static async getByIdWithoutRelations(id) {
+		try {
+			return await getRepository(this).findOneOrFail(id, {
+				select: ["id", "username", "email"],
+			})
+		} catch (error) {
+			return { status: 404, message: 'User not found' }
+		}
+	}
+
+	static async getByIdDangerously(id) {
+		try {
+			return await getRepository(this).findOneOrFail(id, {
+				relations: ["docs", "docs.img", "docs.music", "collections", "collections.docs"]
+			})
+		} catch (error) {
+			return { status: 404, message: 'User not found' }
+		}
 	}
 
 	static async create({ email, username, password }) {
@@ -71,14 +95,10 @@ export class User {
 	}
 
 	static async update(id, { username }) {
-		let user: User
-		const userRepository = getRepository(this)
-		
-		try {
-			user = await userRepository.findOneOrFail(id)
-		} catch (error) {
-			return resObj({ status: 404, message: 'User not found' })
-		}
+		const 
+			userRepository = getRepository(this),
+			user: any = await this.getByIdDangerously(id)
+		if(user.status) return user
 		
 		username && ( user.username = username )
 		
@@ -98,14 +118,11 @@ export class User {
 	static async changePassword(id, { oldPassword, newPassword }) {
 		if(!(oldPassword && newPassword)) return resObj({ status: 400 })
 
-		const userRepository = getRepository(this)
-		let user: User
+		const 
+			userRepository = getRepository(this),
+			user: any = await this.getByIdDangerously(id)
+		if(user.status) return user
 		
-		try {
-			user = await userRepository.findOneOrFail(id)
-		} catch (error) {
-			return resObj({ status: 401 })
-		}
 
 		if(!user.isUnencryptedPasswordValid(oldPassword)) return resObj({ status: 401 })
 
@@ -126,16 +143,13 @@ export class User {
 	}
 
 	static async delete(id) {
-		const userRepository = getRepository(this)
+		const 
+			userRepository = getRepository(this),
+			user: any = await this.getByIdDangerously(id)
+		if(user.status) return user
 
 		try {
-			await User.getById(id)
-		} catch (error) {
-			return resObj({ status: 404, message: 'User not found' })
-		}
-
-		try {
-			await userRepository.delete(id)
+			await userRepository.delete(user)
 		} catch (error) {
 			return { status: 404, message: 'Request failed' }
 		}

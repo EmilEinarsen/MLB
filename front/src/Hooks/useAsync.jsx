@@ -2,7 +2,8 @@ import { useEffect, useReducer, useCallback } from 'react'
 
 const ACTION = {
 	FETCH: 'FETCH',
-	RESPONSE: 'RESPONSE'
+	RESPONSE: 'RESPONSE',
+	RESET: 'RESET'
 }
 
 const fetchReducer = (state, action) => {
@@ -19,7 +20,12 @@ const fetchReducer = (state, action) => {
 			...action.payload,
 			pending: false,
 		}
+	case ACTION.RESET: 
+		return { 
+			...initialState 
+		}
 	}
+	
 }
 
 const initialState = {
@@ -62,6 +68,9 @@ const useAsync = (asyncFunction, immediate = true) => {
 	return [
 		state,
 		execute,
+		{
+			reset: () => dispatch({type: ACTION.RESET })
+		}
 	]
 }
 

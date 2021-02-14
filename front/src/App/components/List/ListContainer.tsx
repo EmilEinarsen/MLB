@@ -25,7 +25,7 @@ const ListContainer: React.FC<Props> = ({
 		collections,
 		hooks: {
 			check: { checked, addCheck, removeCheckByValue },
-			file: { setSelectedFile },
+			file: { selectedFile, setSelectedFile },
 		}
 	}: any = useContext(contextData)
 
@@ -42,6 +42,7 @@ const ListContainer: React.FC<Props> = ({
 			props={{
 				checked,
 				handleCheck,
+				selectedFile,
 				setSelectedFile,
 				refMounted
 			}}

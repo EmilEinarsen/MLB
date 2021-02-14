@@ -2,10 +2,9 @@ import express, { Application } from 'express'
 import cors from 'cors'
 import Controller from '../controllers/Controller'
 import docRoutes from './docRoutes'
-import imgRoutes from './imgRoutes'
+import fileRoutes from './fileRoutes'
 import collectionRoutes from './collectionRoutes'
 import userRoutes from './userRoutes'
-import authController from '../controllers/authController'
 import { checkJwt } from '../middlewares/checkJwt'
 
 const app: Application = express()
@@ -27,7 +26,7 @@ const routes: Route[] = [
 	{ method: 'get', path: '/', middleware: [checkJwt], callback: Controller.getAll },
 	{ method: 'post', path: '/login', callback: Controller.login },
     ...docRoutes,
-    ...imgRoutes,
+    ...fileRoutes,
 	...collectionRoutes,
 	...userRoutes,
 ]
