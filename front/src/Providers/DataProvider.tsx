@@ -10,13 +10,14 @@ import { useStorage } from 'bjork_react-hookup'
 
 declare global {
 	interface ContextData {
-		collections: Collection[],
-		files: Doc[],
+		collections: Collection[]
+		files: Doc[]
+		user: { username: string }
 		hooks: {
 			check: { checked: string[], addCheck: (value: string) => void, removeCheckByValue: (value: string) => void, clearChecked: () => void },
 			file: { selectedFile: string | undefined, setSelectedFile: (value: string) => void }
 			collection: { selectedCollection: string | undefined, setSelectedCollection: (value: string) => void }
-		},
+		}
 		reload: () => void
 		rerender: () => void
 	}
@@ -62,6 +63,7 @@ const FilesProvider = (
 		<contextData.Provider value={{ 
 			files: data.docs,
 			collections: data.collections,
+			user: { username: data.username },
 			hooks: {
 				check: { checked, addCheck, removeCheckByValue, clearChecked },
 				file: { 

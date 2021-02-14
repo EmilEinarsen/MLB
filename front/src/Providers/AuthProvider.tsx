@@ -5,6 +5,7 @@ import { useObject } from 'bjork_react-hookup'
 import useInitialFetch from '../Hooks/useInitialFetch'
 import { message } from 'antd'
 import cookie from 'bjork_cookie'
+import { clearData } from './serverData'
 
 interface ContextAuth {
 	authState: AUTHSTATE
@@ -16,6 +17,7 @@ interface ContextAuth {
 	removeError: any
 	unauthorize: () => void
 	checkAuthorization: (response: any) => any
+	logout: () => void
 }
 
 export enum AUTHSTATE {
@@ -35,6 +37,7 @@ const AuthProvider: React.FC = ({ children }) => {
 	const [ customErrors, , { add: addError, removeByKey: removeError } ] = useObject({})
 	const unauthorize = () => setAuthState(AUTHSTATE.login)
 	const [ initialFetch, reInitialFetch ] = useInitialFetch()
+	const logout = () => (clearData(), cookie.destroy('token'), localStorage.clear(), unauthorize())
 	
 	useEffect(() => {
 		if(authState === AUTHSTATE.authorized || !registerState) return
@@ -84,7 +87,8 @@ const AuthProvider: React.FC = ({ children }) => {
 			customErrors,
 			removeError,
 			unauthorize,
-			checkAuthorization
+			checkAuthorization,
+			logout
 		}}>
 			{children}
 		</contextAuth.Provider>

@@ -2,9 +2,10 @@ import React from 'react'
 import Navbar from '../components/Navbar'
 import Folder from '../Folder'
 import { navigation } from '../../Providers/PageProvider'
-import { Grid, Box, makeStyles } from '@material-ui/core'
+import { Grid, makeStyles } from '@material-ui/core'
 import './Main.sass'
 import Document from '../Document'
+import User from '../User'
 
 interface Props {
 	page: navigation
@@ -28,9 +29,7 @@ const Main: React.FC<Props> = ({ page }) => {
 				<Document />
 			</div>
 			{ page === navigation.user && 
-				<Box className="folder-document" >
-					<p>User</p>
-				</Box>
+				<User />
 			}
 			<Navbar />
 		</Grid>

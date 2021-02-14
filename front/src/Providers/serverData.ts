@@ -17,16 +17,29 @@ declare global {
 	}
 	
 	interface Data {
-		collections: Collection[],
+		id: string
+		email: string
+		username: string
+		collections: Collection[]
 		docs: Doc[]
 	}
 }
 
 const data: Data | any = {
+	id: '',
+	email: '',
+	username: '',
     collections: [],
     docs: []
 }
 
+export const clearData = () => {
+	data.id = ''
+	data.email = ''
+	data.username = ''
+    data.collections = []
+    data.docs = []
+}
 export const createData = (req: any, payload: any) =>
 	payload.length ?
 		data[requestToDataKey(req)].push(...payload) : 

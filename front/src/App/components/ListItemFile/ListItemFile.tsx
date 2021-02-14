@@ -67,8 +67,8 @@ const ListItemFile = ({
 							<MusicNote color={ file.music ? 'inherit' : 'disabled' } />
 						</div>
 					}
-				</Grid>
-			</Grid>
+				</Grid>	
+			</Grid>	
 			<ListItemSecondaryAction>
 				<Checkbox
 					edge="end"

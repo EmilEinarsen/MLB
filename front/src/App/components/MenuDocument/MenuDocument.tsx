@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Fade, Grid, IconButton, ListItemIcon, Menu, MenuItem, PopoverOrigin, Typography } from '@material-ui/core'
-import { Delete, Edit, MoreVert, Folder, Description, Add } from '@material-ui/icons'
+import { Delete, Edit, MoreVert, Folder, Description, Add, CreateNewFolder, NoteAdd } from '@material-ui/icons'
 import { EModal, EQuantity, EType } from '../../../Providers/EditProvider'
 import './MenuDocument.sass'
 import NestedMenuItem from "material-ui-nested-menu-item"
@@ -159,7 +159,7 @@ const MenuItemsAdd = (handleClose: (value: any) => void) => [
 		})}
 	>
 		<ListItemIcon>
-			<Description fontSize="small" />
+			<NoteAdd fontSize="small" />
 		</ListItemIcon>
 		<Typography variant="inherit">Song</Typography>
 	</MenuItem>,
@@ -172,7 +172,7 @@ const MenuItemsAdd = (handleClose: (value: any) => void) => [
 		})}
 	>
 		<ListItemIcon>
-			<Folder fontSize="small" />
+			<CreateNewFolder fontSize="small" />
 		</ListItemIcon>
 		<Typography variant="inherit">Playlists</Typography>
 	</MenuItem>

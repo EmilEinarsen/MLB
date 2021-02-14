@@ -76,8 +76,8 @@ const Document: React.FC<Props> = ({
 								</Box>
 							}
 							{ file.text &&
-								<CardContent component="p" className={classes.cardContent}>
-									<Typography variant="body2" color="textPrimary" component="span">
+								<CardContent className={classes.cardContent}>
+									<Typography paragraph>
 										{file.text}
 									</Typography>
 								</CardContent>
