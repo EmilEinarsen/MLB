@@ -4,9 +4,3 @@ node_modules/
 build/
 tmp/
 temp/
-
-audio/*
-!audio/.keep
-
-image/*
-!image/.keep
