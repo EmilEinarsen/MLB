@@ -4,5 +4,9 @@ node_modules/
 build/
 tmp/
 temp/
-audio/*
-image/*
+
+public/assets/audio/*
+!public/assets/audio/.keep
+
+public/assets/image/*
+!public/assets/image/.keep
