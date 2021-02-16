@@ -15,6 +15,7 @@
     "@types/react-dom": "^16.9.10",
     "antd": "^4.9.1",
     "bjork_react-hookup": "^2.0.52",
+    "express": "^4.17.1",
     "material-ui-nested-menu-item": "^1.0.2",
     "node-sass": "^4.14.1",
     "react": "^17.0.1",
