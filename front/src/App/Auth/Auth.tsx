@@ -56,11 +56,6 @@ const Auth: React.FC<Props> = ({
 		refForm.current && refForm.current.validateFields(Object.keys(customErrors))
 	}, [customErrors])
 
-	handleFinish = async (values: any) => {
-		console.log(await refForm.current?.validateFields())
-		handleFinish(values)
-	}
-
 	const formProps = { refForm, handleFinish, toggleForm, submitState, refMounted, customErrors, onValuesChange: handleValuesChanged }
 
 	return authState === EAuthState.authorized ? <App refMounted={refMounted} />

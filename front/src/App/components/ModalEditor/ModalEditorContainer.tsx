@@ -11,9 +11,9 @@ const handleFile = (originalFile: any, array: any[], fieldValues: any, key: stri
 		(
 			(!originalFile[key] && array.length)
 			|| (originalFile[key] && array.length && originalFile[key].uid !== array[0].uid)
-		) && (fieldValues[key] = formDataFile(array[0]))
+		) && array[0].status !== 'error' && (fieldValues[key] = formDataFile(array[0]))
 	)
-	!originalFile && array.length && (fieldValues[key] = formDataFile(array[0]))
+	!originalFile && array.length && array[0].status !== 'error' && (fieldValues[key] = formDataFile(array[0]))
 	return fieldValues
 }
 
@@ -76,8 +76,8 @@ const ModalEditorContainer = () => {
 			
 			mode.type === EType.doc && fields.forEach(
 				(field: any, index: number) => {
-					localImg[index] && (field.img = formDataFile(localImg[index]))
-					localMusic[index] && (field.music = formDataFile(localMusic[index]))
+					localImg[index] &&  localImg[index] !== 'error' && (field.img = formDataFile(localImg[index]))
+					localMusic[index] && localImg[index] !== 'error' && (field.music = formDataFile(localMusic[index]))
 				}
 			)
 
@@ -88,14 +88,25 @@ const ModalEditorContainer = () => {
 			submit(fields)
 		},
 		handleImgChange = (img?: any, index?: number) => {
+			const status = img?.type && (["image/jpeg", "image/png"].includes(img.type) ? 'success' : 'error')
+			status && (
+				img.status = status,
+				status === 'error' && (img.response = 'Invalid type')
+			)
 			mode.modal === EModal.add && mode.type === EType.doc 
 				? (index || index === 0) && setLocalImg((imgList: any) => (imgList[index] = img, [...imgList]))
 				: img ? setLocalImg([img]) : setLocalImg([])
 		},
 		handleMusicChange = (music?: any, index?: number) => {
+			const status = music?.type && (music.type === "audio/mpeg" ? 'success' : 'error')
+			status && (
+				music.status = status,
+				status === 'error' && (music.response = 'Invalid type')
+			)
 			mode.modal === EModal.add && mode.type === EType.doc 
-				? (index || index === 0) && setLocalMusic((musicList: any) => (musicList[index] = music, [...musicList]))
-				: music ? setLocalMusic([music]) : setLocalMusic([])
+				? (index || index === 0) && setLocalMusic(
+					(musicList: any) => (musicList[index] = music, [...musicList])
+				) : music ? setLocalMusic([music]) : setLocalMusic([])
 		},
 		handleSelectedDocs = (docIds: string[], index?: number) =>
 			(index || index === 0) ? 

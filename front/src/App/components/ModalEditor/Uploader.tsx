@@ -31,6 +31,7 @@ const Uploader: React.FC<Props> = ({
 				onRemove={() => handleImgChange(undefined, index)}
 				beforeUpload={(img) => (handleImgChange(img, index), false) }
 				fileList={!img ? img : img.size ? [img] : [correctUrl(img)]}
+				accept="image/png, image/jpeg"
 			>
 				<Button icon={<UploadOutlined />}>{ label ?? 'Select Image' }</Button>
 			</Upload>
@@ -41,6 +42,7 @@ const Uploader: React.FC<Props> = ({
 				onRemove={() => handleMusicChange(undefined, index)}
 				beforeUpload={(music) => (handleMusicChange(music, index), false) }
 				fileList={!music ? music : music.size ? [music] : [correctUrl(music)]}
+				accept="audio/mpeg"
 			>
 				<Button icon={<UploadOutlined />}>{ label ?? 'Select Music' }</Button>
 			</Upload>

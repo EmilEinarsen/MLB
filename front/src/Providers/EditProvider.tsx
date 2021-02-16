@@ -9,6 +9,13 @@ import useAsync from '../Hooks/useAsync'
 import { createData, deleteData, deleteDocFile, updateData } from './serverData'
 import { contextAuth } from './AuthProvider'
 
+export enum EStatus {
+	'error',
+	'success',
+	'pending',
+	'done' //?
+}
+
 export enum EModal {
 	'add',
 	'edit',
@@ -106,10 +113,15 @@ const EditProvider = (
 		submitState, submit, { reset: resetSubmitState } 
 	] = useAsync(fetchRequest ?? (async () => { throw Error('Undefined fetchRequest') }), false)
 	const saveToData = () => {
-		const payload = submittedPayload.current
+		let payload = { ...submittedPayload.current }
 		if(!payload) return
 		mode.modal === EModal.add && createData(request, submitState.value)
-		mode.modal === EModal.edit && updateData(request, payload.id, payload)
+		mode.modal === EModal.edit && (
+			console.log(payload),
+			payload.imgStatus && payload.img && (payload.img.status = payload.imgStatus),
+			payload.musicStatus && payload.music && (payload.music.status = payload.musicStatus),
+			updateData(request, payload.id, payload)
+		)
 		mode.modal === EModal.remove && deleteData(request, {id, ids})
 	}
 	const handleSubmit = async (payload: any = {}) => {
@@ -163,7 +175,7 @@ const EditProvider = (
 			saveToData(),
 			rerender(),
 			(submittedPayload.current = undefined),
-			mode.modal === EModal.add && mode.type === EType.doc && setSelectedFile(submitState.value.id),
+			mode.modal === EModal.add && mode.type === EType.doc && setSelectedFile(submitState.value[0].id),
 			checkAuthorization(submitState),
 			resetSubmitState(),
 			mode.modal !== EModal.edit && resetModal(),
@@ -204,16 +216,19 @@ const removeFile = async (payload: { id: string, docId: string }, checkAuthoriza
 const handleFile = async (payload: any, key: string, checkAuthorization: (response: any) => any) => {
 	try {
 		payload[key] && (
-			payload[key] = await uploadFile(payload[key], checkAuthorization)
+			payload[key] = await uploadFile(payload[key], checkAuthorization),
+			payload[key+'Status'] = 'success'
 		)
 		payload[key+'Uid'] && (
 			await removeFile({ id: payload[key+'Uid'], docId: payload.id }, checkAuthorization),
 			deleteDocFile(payload.id, key),
-			payload[key+'Uid'] && (delete payload[key+'Uid'])
+			payload[key+'Uid'] && (delete payload[key+'Uid']),
+			payload[key+'Status'] = 'success'
 		)
 	} catch (error) {
 		payload[key] && (delete payload[key])
 		payload[key+'Uid'] && (delete payload[key+'Uid'])
+		payload[key+'Status'] = 'error'
 	}
 }
 

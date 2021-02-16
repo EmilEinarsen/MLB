@@ -64,7 +64,7 @@ const _List: React.FC<Props> = ({
 				</>
 			: 
 				<Box style={{ display: 'grid', placeContent: 'center', height: '80%' }}>
-					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<p>No songs</p>}>
+					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span>No songs</span>}>
 						<MenuDocument 
 							altButton={(onClick) =>
 								<Button onClick={onClick} variant="contained" color="primary" size="large">
