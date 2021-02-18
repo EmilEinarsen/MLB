@@ -1,10 +1,10 @@
 {
    "type": "mysql",
-   "host": "localhost",
+   "host": "bplrzupvc1md4qg9rylu-mysql.services.clever-cloud.com",
    "port": 3306,
-   "username": "root",
-   "password": "",
-   "database": "MLB",
+   "username": "ug3eb9gtnvrzkqmx",
+   "password": "4GaN4nBdzM40bJumbMKW",
+   "database": "bplrzupvc1md4qg9rylu",
    "synchronize": true,
    "logging": false,
    "entities": [
