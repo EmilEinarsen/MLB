@@ -1,24 +1,24 @@
 {
-   "type": "mysql",
-   "host": "bplrzupvc1md4qg9rylu-mysql.services.clever-cloud.com",
-   "port": 3306,
-   "username": "ug3eb9gtnvrzkqmx",
-   "password": "4GaN4nBdzM40bJumbMKW",
-   "database": "bplrzupvc1md4qg9rylu",
-   "synchronize": true,
-   "logging": false,
-   "entities": [
-      "src/entity/**/*.ts"
-   ],
-   "migrations": [
-      "src/migration/**/*.ts"
-   ],
-   "subscribers": [
-      "src/subscriber/**/*.ts"
-   ],
-   "cli": {
-      "entitiesDir": "src/entity",
-      "migrationsDir": "src/migration",
-      "subscribersDir": "src/subscriber"
-   }
-}
+	"type": "mysql",
+	"host": "bplrzupvc1md4qg9rylu-mysql.services.clever-cloud.com",
+	"port": 3306,
+	"username": "ug3eb9gtnvrzkqmx",
+	"password": "4GaN4nBdzM40bJumbMKW",
+	"database": "bplrzupvc1md4qg9rylu",
+	"synchronize": true,
+	"logging": false,
+	"entities": [
+	   "src/entity/**/*.ts"
+	],
+	"migrations": [
+	   "src/migration/**/*.ts"
+	],
+	"subscribers": [
+	   "src/subscriber/**/*.ts"
+	],
+	"cli": {
+	   "entitiesDir": "src/entity",
+	   "migrationsDir": "src/migration",
+	   "subscribersDir": "src/subscriber"
+	}
+ }
