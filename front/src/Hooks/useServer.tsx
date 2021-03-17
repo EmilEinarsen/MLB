@@ -2,7 +2,7 @@ import React from 'react'
 import useAsync from './useAsync'
 import cookie from 'bjork_cookie'
 
-export const baseUrl = 'http://localhost:3000/'
+export const baseUrl = 'http://localhost:3333/'
 
 export const ACTION = {
     DOC: {
