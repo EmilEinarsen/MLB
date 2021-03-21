@@ -6,10 +6,12 @@ import cookie from 'bjork_cookie'
 import useServer, { ACTION } from '../Hooks/useServer'
 import useInitialFetch from '../Hooks/useInitialFetch'
 import { clearData } from './serverData'
+import useHistory from '../Hooks/useHistory/useHistory'
+import PATH from '../Hooks/useHistory/PATH'
 
 interface ContextAuth {
 	authState: EAuthState
-	setAuthState: React.Dispatch<React.SetStateAction<EAuthState>>
+	setAuthState: (state: EAuthState) => void
 	submit: (value: any) => void
 	refMounted: React.MutableRefObject<undefined>
 	submitState: { pending: boolean, value: any, error: any }
@@ -30,7 +32,19 @@ export enum EAuthState {
 export const contextAuth = createContext<ContextAuth | undefined>(undefined)
 
 const AuthProvider: React.FC = ({ children }) => {
+	const history = useHistory()
 	const [ authState, setAuthState ] = useState<EAuthState>(EAuthState.loading)
+	const handleAuthState = (state: EAuthState) => {
+		history.push(
+			state === EAuthState.authorized ? PATH.PLAYLIST.replace(
+				':songId',
+				history.current.split('/').pop() ?? ''
+			)
+			: state === EAuthState.register ? PATH.REGISTER
+			: PATH.LOGIN
+		)
+		setAuthState(state)
+	}
 	const refMounted = useRef()
 	
 	const [ initialFetch, reInitialFetch ] = useInitialFetch()
@@ -47,7 +61,7 @@ const AuthProvider: React.FC = ({ children }) => {
 		registerState.pending && message.loading({ content: 'Pending...', key: 'register' })
 		registerState.value && (
 			message.success({ content: 'Successful!', key: 'register' }),
-			setAuthState(EAuthState.login)
+			handleAuthState(EAuthState.login)
 		)
 		registerState.error && (
 			(async () => addError(await registerState.error.json()))(),
@@ -59,7 +73,7 @@ const AuthProvider: React.FC = ({ children }) => {
 		if(authState === EAuthState.authorized) return
 		loginState?.value && (
 			async () => (
-				setAuthState(EAuthState.loading),
+				handleAuthState(EAuthState.loading),
 				reInitialFetch()
 			)
 		)()
@@ -67,17 +81,19 @@ const AuthProvider: React.FC = ({ children }) => {
 
 	useEffect(() => {
 		if(initialFetch.pending) return
-		initialFetch.error && setAuthState(EAuthState.login)
-		initialFetch.value && setAuthState(EAuthState.authorized)
+		initialFetch.error && handleAuthState(
+			history.current === PATH.REGISTER ? EAuthState.register : EAuthState.login
+		)
+		initialFetch.value && handleAuthState(EAuthState.authorized)
 	}, [ initialFetch ])
 	
 	useEffect(() => {
 		authState === EAuthState.loading && (refMounted.current = undefined)
 	}, [authState])
 
-	const unauthorize = () => setAuthState(EAuthState.login)
+	const unauthorize = () => handleAuthState(EAuthState.login)
 
-	const logout = () => (clearData(), cookie.destroy('token'), localStorage.clear(), unauthorize())
+	const logout = () => (clearData(), cookie.destroy('token'), unauthorize())
 
 	const checkAuthorization = async (response: any) => {
 		response?.error?.status === 401 && unauthorize()
@@ -87,7 +103,7 @@ const AuthProvider: React.FC = ({ children }) => {
 	return (
 		<contextAuth.Provider value={{
 			authState,
-			setAuthState,
+			setAuthState: handleAuthState,
 			refMounted,
 			submit: handleSubmit,
 			submitState,

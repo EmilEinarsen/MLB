@@ -1,7 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-//import App from './App'
 import Auth from './App/Auth'
 import AuthProvider from './Providers/AuthProvider'
+import HistoryProvider from './Providers/HistoryProvider'
+import registerServiceWorker from './registerServiceWorker'
 
-ReactDOM.render(<AuthProvider><Auth /></AuthProvider>, document.getElementById('root'))
+ReactDOM.render((
+	<HistoryProvider>
+		<AuthProvider>
+			<Auth />
+		</AuthProvider>
+	</HistoryProvider>
+), document.getElementById('root'))
+
+registerServiceWorker()

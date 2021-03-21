@@ -7,6 +7,8 @@ import useMediaQuery from "../Hooks/useMediaQuery"
 import { ACTION, fetchServer } from "../Hooks/useServer"
 import useAsync from "../Hooks/useAsync"
 import { useStorage } from 'bjork_react-hookup'
+import useHistory from "../Hooks/useHistory/useHistory"
+import PATH from "../Hooks/useHistory/PATH"
 
 declare global {
 	interface ContextData {
@@ -25,8 +27,13 @@ declare global {
 
 export const contextData = createContext<ContextData | undefined>(undefined)
 
+const getSongId = (current: string) =>
+	current === PATH.USER ? ''
+	: current.split('/').pop()
+
+
 const FilesProvider = ({ children }: any) => {
-	const { setPage } = useContext(contextPage)
+	const history = useHistory()
 
 	const [ data, setData ] = useState<Data>(serverData)
 	const [ response, serverRequest, { reset: resetResponse } ] = useAsync(async () => await fetchServer({ dest: ACTION.get_all }), false)
@@ -39,11 +46,17 @@ const FilesProvider = ({ children }: any) => {
 	}] = useArray([])
 	
 	const matches = useMediaQuery({})
-	const [ selectedFile, setSelectedFile ] = useStorage('local', 'selectedFile')
+	const [ selectedFile, setSelectedFile ] = useState(getSongId(history.current))
 	const handleSetSelectedFile = (value: any) => {
 		setSelectedFile(value)
-		matches && setPage(navigation.selected)
+		!matches 
+			? history.push(PATH.PLAYLIST.replace(':songId', value))
+			: history.push(PATH.SONG.replace(':songId', value))
 	}
+	useEffect(() => {
+		const id = getSongId(history.current)
+		id && setSelectedFile(id)
+	}, [history.current])
 	
 	const [ selectedCollection, setSelectedCollection ] = useState<string | undefined>()
 
